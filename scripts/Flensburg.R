@@ -11,42 +11,61 @@ set.seed(1)
 
 # Flensburg ---------------------------------------------------------------
 
-nodes_flensburg <-  read_csv("./data/interactionwebdb/Flensburg/Flensburg_Data_Nodes.csv")
-links_flensburg <- read_csv("./data/interactionwebdb/Flensburg/Flensburg_Data_Links.csv")
+nodes_flensburg <-  read.csv("./data/interactionwebdb/Flensburg/Flensburg_Data_Nodes.csv")
+links_flensburg <- read.csv("./data/interactionwebdb/Flensburg/Flensburg_Data_Links.csv")
 
 glimpse(nodes_flensburg)
 glimpse(links_flensburg)
 
-
-# iGraph ------------------------------------------------------------------
-
-web_flensburg <- graph_from_data_frame(d = links_flensburg, vertices = nodes_flensburg, directed = T)
-web_flensburg
-
-layout_circle <- layout.circle(web_flensburg)
-plot(web_flensburg, layout = layout_circle) # That's a mess
-
-# Let’s try to make sense -------------------------------------------------
-# need to make a community file for cheddar and put them in a list
-  
 # nodes
 glimpse(nodes_flensburg)
-nodes_flensburg <- nodes_flensburg %>% select(`Node ID`, ConsumerStrategyStage)
-nodes <- nodes_flensburg %>% rename(node = `NodeID`, functional.group = ConsumerStrategyStage)
-glimpse(nodes)
+nodes_wrk <- nodes_flensburg %>% select(Node.ID, WorkingName) %>% 
+  mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
+glimpse(nodes_wrk)
 
-# trophic.links
-trophic.links <- links_flensburg %>% select(ConsumerNodeID, ResourceNodeID) %>% 
-rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
-glimpse(trophic.links)
+# trophic.links ----
+
+# 1. get links:
+trophic.links <- links_flensburg %>% select(ConsumerNodeID, ResourceNodeID)
+
+# 2. isolate each column and rename to match nodes Node.ID column name
+CNtemp <- trophic.links %>% select(ConsumerNodeID) %>%
+  rename(Node.ID = ConsumerNodeID)
+
+RNtemp <- trophic.links %>% select(ResourceNodeID) %>%
+  rename(Node.ID = ResourceNodeID)
+
+# 3. use left_join to replace with names
+CN_name <- left_join(CNtemp, nodes_wrk)
+RN_name <- left_join(RNtemp, nodes_wrk)
+
+# head(left_join(CNtemp, nodes_wrk))
+# head(CNtemp) 
+
+# 4. rebuild trophic.links
+trophic.links <- data.frame(ConsumerNodeID = CN_name$WorkingName,
+                            ResourceNodeID = RN_name$WorkingName)
+head(trophic.links)
+
+trophic.links <- trophic.links %>% 
+  rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
+
+# change node names
+nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
+  select(node)
+head(nodes)
 
 # properties
-properties <-  properties <-  list(title = "Flensburg")
+properties <-  list(title = "Flensburg")
 properties
 
-# put in a list
-community_Flensburg <- list(nodes = nodes, trophic.links = trophic.links, properties = properties)
-glimpse(community_Flensburg)
+# make the community
+flensburg_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-# load community from list? ARGHHH
+# plot
+plot(flensburg_web)
 
+# cleanup before next step
+rm(properties)
+rm(nodes)
+rm(trophic.links)
