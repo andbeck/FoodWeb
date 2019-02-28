@@ -11,8 +11,8 @@ set.seed(1)
 
 # Load in the edges and nodes ------------------------------------------------------
 
-nodes_EPB <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_nodes.csv")
-links_EPB <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_links.csv")
+nodes_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_nodes.csv")
+links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
 
 nodes_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_nodes.csv")
 links_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_links.csv")
@@ -23,52 +23,110 @@ links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
 # Let’s try to make sense -------------------------------------------------
 # need to make a community file for cheddar and put them in a list
 
-##### EPB #####
+##### CSM #####
 
 # nodes
-glimpse(nodes_EPB)
-nodes_EPB <- nodes_EPB %>% select(NodeID, ConsumerStrategy.stage.)
-nodes <- nodes_EPB %>% rename(node = NodeID, functional.group = ConsumerStrategy.stage.)
-glimpse(nodes)
+glimpse(nodes_CSM)
+nodes_wrk <- nodes_CSM %>% select(NodeID, WorkingName) %>% 
+  mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
+glimpse(nodes_wrk)
 
-# trophic.links
-trophic.links <- links_EPB %>% select(ConsumerNodeID, ResourceNodeID) %>% 
+# trophic.links ----
+
+# 1. get links:
+trophic.links <- links_CSM %>% select(ConsumerNodeID, ResourceNodeID)
+
+# 2. isolate each column and rename to match nodes NodeID column name
+CNtemp <- trophic.links %>% select(ConsumerNodeID) %>%
+  rename(NodeID = ConsumerNodeID)
+
+RNtemp <- trophic.links %>% select(ResourceNodeID) %>%
+  rename(NodeID = ResourceNodeID)
+
+# 3. use left_join to replace with names
+CN_name <- left_join(CNtemp, nodes_wrk)
+RN_name <- left_join(RNtemp, nodes_wrk)
+
+# head(left_join(CNtemp, nodes_wrk))
+# head(CNtemp) 
+
+# 4. rebuild trophic.links
+trophic.links <- data.frame(ConsumerNodeID = CN_name$WorkingName,
+                            ResourceNodeID = RN_name$WorkingName)
+head(trophic.links)
+
+trophic.links <- trophic.links %>% 
   rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
-glimpse(trophic.links)
+
+# change node names
+nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
+  select(node)
+head(nodes)
 
 # properties
-properties <-  list(title = "EPB")
+properties <-  list(title = "CSM")
 properties
 
-# put in a list
-community_EPB <- list(nodes = nodes, trophic.links = trophic.links, properties = properties)
-glimpse(community_EPB)
+# make the community
+CSM_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+
+# plot
+plot(CSM_web)
 
 # cleanup before next step
 rm(properties)
 rm(nodes)
 rm(trophic.links)
 
-##### CSM ######
+##### EPB ######
 
 # nodes
-glimpse(nodes_CSM)
-nodes_CSM <- nodes_CSM %>% select(NodeID, ConsumerStrategy.stage.)
-nodes <- nodes_CSM %>% rename(node = NodeID, functional.group = ConsumerStrategy.stage.)
-glimpse(nodes)
+glimpse(nodes_EPB)
+nodes_wrk <- nodes_EPB %>% select(NodeID, WorkingName) %>% 
+  mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
+glimpse(nodes_wrk)
 
-# trophic.links
-trophic.links <- links_CSM %>% select(ConsumerNodeID, ResourceNodeID) %>% 
+# trophic.links ----
+
+# 1. get links:
+trophic.links <- links_EPB %>% select(ConsumerNodeID, ResourceNodeID)
+
+# 2. isolate each column and rename to match nodes NodeID column name
+CNtemp <- trophic.links %>% select(ConsumerNodeID) %>%
+  rename(NodeID = ConsumerNodeID)
+
+RNtemp <- trophic.links %>% select(ResourceNodeID) %>%
+  rename(NodeID = ResourceNodeID)
+
+# 3. use left_join to replace with names
+CN_name <- left_join(CNtemp, nodes_wrk)
+RN_name <- left_join(RNtemp, nodes_wrk)
+
+# head(left_join(CNtemp, nodes_wrk))
+# head(CNtemp) 
+
+# 4. rebuild trophic.links
+trophic.links <- data.frame(ConsumerNodeID = CN_name$WorkingName,
+                            ResourceNodeID = RN_name$WorkingName)
+head(trophic.links)
+
+trophic.links <- trophic.links %>% 
   rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
-glimpse(trophic.links)
+
+# change node names
+nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
+  select(node)
+head(nodes)
 
 # properties
-properties <-  list(title = "CSM")
+properties <-  list(title = "EPB")
 properties
 
-# put in a list
-community_CSM <- list(nodes = nodes, trophic.links = trophic.links, properties = properties)
-glimpse(community_CSM)
+# make the community
+EPB_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+
+# plot
+plot(EPB_web)
 
 # cleanup before next step
 rm(properties)
@@ -79,24 +137,52 @@ rm(trophic.links)
 
 # nodes
 glimpse(nodes_BSQ)
-nodes_BSQ <- nodes_BSQ %>% select(NodeID, ConsumerStrategy.stage.)
-nodes <- nodes_BSQ %>% rename(node = NodeID, functional.group = ConsumerStrategy.stage.)
-glimpse(nodes)
+nodes_wrk <- nodes_BSQ %>% select(NodeID, WorkingName) %>% 
+  mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
+glimpse(nodes_wrk)
 
-# trophic.links
-trophic.links <- links_BSQ %>% select(ConsumerNodeID, ResourceNodeID) %>% 
+# trophic.links ----
+
+# 1. get links:
+trophic.links <- links_BSQ %>% select(ConsumerNodeID, ResourceNodeID)
+
+# 2. isolate each column and rename to match nodes NodeID column name
+CNtemp <- trophic.links %>% select(ConsumerNodeID) %>%
+  rename(NodeID = ConsumerNodeID)
+
+RNtemp <- trophic.links %>% select(ResourceNodeID) %>%
+  rename(NodeID = ResourceNodeID)
+
+# 3. use left_join to replace with names
+CN_name <- left_join(CNtemp, nodes_wrk)
+RN_name <- left_join(RNtemp, nodes_wrk)
+
+# head(left_join(CNtemp, nodes_wrk))
+# head(CNtemp) 
+
+# 4. rebuild trophic.links
+trophic.links <- data.frame(ConsumerNodeID = CN_name$WorkingName,
+                            ResourceNodeID = RN_name$WorkingName)
+head(trophic.links)
+
+trophic.links <- trophic.links %>% 
   rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
-glimpse(trophic.links)
+
+# change node names
+nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
+  select(node)
+head(nodes)
 
 # properties
 properties <-  list(title = "BSQ")
 properties
 
-# put in a list
-community_BSQ <- list(nodes = nodes, trophic.links = trophic.links, properties = properties)
-glimpse(community_BSQ)
+# make the community
+BSQ_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-PlotPredationMatrix(community_BSQ)
+# plot
+plot(BSQ_web)
+
 # cleanup before next step
 rm(properties)
 rm(nodes)
