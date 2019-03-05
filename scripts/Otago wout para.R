@@ -140,3 +140,7 @@ plot(otago_web_pp)
 par(mfrow=c(1,2))
 plot(otago_web_para)
 plot(otago_web_pp)
+
+(otago_web_pp)
+
+

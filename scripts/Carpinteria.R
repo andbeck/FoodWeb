@@ -17,8 +17,8 @@ links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
 nodes_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_nodes.csv")
 links_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_links.csv")
 
-nodes_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_nodes.csv")
-links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
+nodes_EPB <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_nodes.csv")
+links_EPB <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_links.csv")
 
 # Let’s try to make sense -------------------------------------------------
 # need to make a community file for cheddar and put them in a list
@@ -27,7 +27,7 @@ links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
 
 # nodes
 glimpse(nodes_CSM)
-nodes_wrk <- nodes_CSM %>% select(NodeID, WorkingName) %>% 
+nodes_wrk <- nodes_CSM %>% select(NodeID, WorkingName, Abundance.no..ha., BodySize.g.) %>% 
   mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
 glimpse(nodes_wrk)
 
@@ -59,12 +59,22 @@ trophic.links <- trophic.links %>%
   rename(consumer = ConsumerNodeID, resource = ResourceNodeID)
 
 # change node names
-nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
-  select(node)
+nodes <- nodes_wrk %>% rename(node = WorkingName, M = BodySize.g., N = Abundance.no..ha.) %>% 
+  select(node, M, N)
 head(nodes)
 
+#----- Trying to make all N/M values not blank values
+# sum(is.na(nodes$N))
+# nodes$N[is.na(nodes$N)] <- 0 # This has to be 0<N<inf
+# sum(is.na(nodes$N))
+# 
+# sum(is.na(nodes$M))
+# nodes$M[!is.na(nodes$M)] <- 0 # This has to be 0<M<inf
+# sum(is.na(nodes$M))
+
+
 # properties
-properties <-  list(title = "CSM")
+properties <-  list(title = "CSM", M.units = "g", N.units = "no.ha")
 properties
 
 # make the community
@@ -140,7 +150,8 @@ glimpse(nodes_BSQ)
 nodes_wrk <- nodes_BSQ %>% select(NodeID, WorkingName) %>% 
   mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
 glimpse(nodes_wrk)
-
+dim(nodes_wrk)
+unique(nodes_wrk)
 # trophic.links ----
 
 # 1. get links:
@@ -172,6 +183,7 @@ trophic.links <- trophic.links %>%
 nodes <- nodes_wrk %>% rename(node = WorkingName) %>% 
   select(node)
 head(nodes)
+nodes
 
 # properties
 properties <-  list(title = "BSQ")
