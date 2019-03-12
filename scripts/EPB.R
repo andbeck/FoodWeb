@@ -7,8 +7,6 @@ library(fluxweb)
 library(cheddar)
 library(cowplot)
 
-rm(list = ls())
-set.seed(1)
 
 # Load in the edges and nodes ------------------------------------------------------
 
@@ -85,41 +83,72 @@ properties <-  list(title = "EPB", M.units = "g", N.units = "no.ha")
 properties
 
 # make the community
-EPB_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+EPB <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-# symbols
-symbol.spec = c("autotroph" = 15, "detritivore" = 16, "detritus" = 17, "macroparasite" = 15,
-                "micropredator" = 16, "nonfeeding" = 17, "parasitic castrator" = 15,
-                "pathogen" = 16, "predator" = 17, "trophically transmitted parasite" = 15, "parasitoid" = 16)
-colour.spec = c("autotroph" = "green", "detritivore" = "grey", "detritus" = "brown", "macroparasite" = "red",
-                "micropredator" = "blue", "nonfeeding" = "darkgreen", "parasitic castrator" = "orange",
-                "pathogen" = "coral", "predator" = "black", "trophically transmitted parasite" = "purple", "parasitoid" = "steelblue")
+### PLOTTING WITH CHEDDAR ###
+# # symbols
+# symbol.spec = c("autotroph" = 15, "detritivore" = 16, "detritus" = 17, "macroparasite" = 15,
+#                 "micropredator" = 16, "nonfeeding" = 17, "parasitic castrator" = 15,
+#                 "pathogen" = 16, "predator" = 17, "trophically transmitted parasite" = 15, "parasitoid" = 16)
+# colour.spec = c("autotroph" = "green", "detritivore" = "grey", "detritus" = "brown", "macroparasite" = "red",
+#                 "micropredator" = "blue", "nonfeeding" = "darkgreen", "parasitic castrator" = "orange",
+#                 "pathogen" = "coral", "predator" = "black", "trophically transmitted parasite" = "purple", "parasitoid" = "steelblue")
+# 
+# 
+# # plot
+# par(mfrow=c(1,2))
+# plot(EPB, show.na = FALSE, symbol.by = 'functional.group', 
+#      symbol.spec = symbol.spec, colour.by = 'functional.group',
+#      colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
+# legend("topright", legend = names(colour.spec), pch = symbol.spec,
+#        col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
+#        text.width = 3)
+# # now with NA's
+# plot(EPB, show.na = TRUE, symbol.by = 'functional.group', 
+#      symbol.spec = symbol.spec, colour.by = 'functional.group',
+#      colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
+# legend("topright", legend = names(colour.spec), pch = symbol.spec,
+#        col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
+#        text.width = 3)
+# par(mfrow=c(1,1))
+# 
+# # plot with missing N/M's
+# plot(EPB, show.na = TRUE)
+# 
+# PlotWebByLevel(EPB)
+# 
+# par(mfrow=c(1,2))
+# PlotNvM(EPB, highlight.links = ResourceLargerThanConsumer(EPB))
+# PlotNvM(EPB, highlight.links = ResourceLargerThanConsumer(EPB),
+#         show.na = TRUE)
+# par(mfrow=c(1,1))
+
+# removing N/M nodes with NA values ---------------------------------------
+
+### NOT NEEDED ###
+# # cant get rid of Basal nodes? Figure out which ones have N/M values:
+# EPBbasal <- BasalNodes(EPB)
+# EPBbasal #list of basal node names
+# EPBbasal <- subset(nodes, node %in% EPBbasal) # now have all row values for the basal nodes in R
+# complete.cases(EPBbasal) # none of the basal nodes are complete cases
+
+### Not Needed ###
+# # get a list of node names that need removing?
+# nodeNA_EPB <- nodes %>% filter(!complete.cases(.)) %>% 
+#   select(node)
+# nodeNA_EPB <- nodeNA_EPB %>% as.list # should work
+
+# now with NA nodes
+EPBlite <- RemoveNodes(EPB, !complete.cases(nodes), method = "direct") # changing this to secondary/cascade results in NA nodes
+EPBlite
+
+plot(EPBlite, show.nodes.as = "labels", node.labels = "node", cex = .5, show.na = T)
+PlotWebByLevel(EPBlite, show.na = FALSE, show.nodes.as = "labels", node.labels = "node", cex = .5,
+               highlight.links = ResourceLargerThanConsumer(EPBlite))
+
+# now any isolated nodes
+EPBlite <- RemoveIsolatedNodes(EPBlite) #there are 0 anyway:
+IsolatedNodes(EPBlite)
 
 
-# plot
-par(mfrow=c(1,2))
-plot(EPB_web, show.na = FALSE, symbol.by = 'functional.group', 
-     symbol.spec = symbol.spec, colour.by = 'functional.group',
-     colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
-legend("topright", legend = names(colour.spec), pch = symbol.spec,
-       col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
-       text.width = 3)
-# now with NA's
-plot(EPB_web, show.na = TRUE, symbol.by = 'functional.group', 
-     symbol.spec = symbol.spec, colour.by = 'functional.group',
-     colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
-legend("topright", legend = names(colour.spec), pch = symbol.spec,
-       col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
-       text.width = 3)
-par(mfrow=c(1,1))
 
-# plot with missing N/M's
-plot(EPB_web, show.na = TRUE)
-
-PlotWebByLevel(EPB_web)
-
-par(mfrow=c(1,2))
-PlotNvM(EPB_web, highlight.links = ResourceLargerThanConsumer(EPB_web))
-PlotNvM(EPB_web, highlight.links = ResourceLargerThanConsumer(EPB_web),
-        show.na = TRUE)
-par(mfrow=c(1,1))

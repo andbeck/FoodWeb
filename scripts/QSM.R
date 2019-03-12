@@ -7,9 +7,6 @@ library(fluxweb)
 library(cheddar)
 library(cowplot)
 
-rm(list = ls())
-set.seed(1)
-
 # Load in the edges and nodes ------------------------------------------------------
 
 nodes_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_nodes.csv")
@@ -85,41 +82,53 @@ properties <-  list(title = "BSQ", M.units = "g", N.units = "no.ha")
 properties
 
 # make the community
-BSQ_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+BSQ <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-# symbols
-symbol.spec = c("autotroph" = 15, "detritivore" = 16, "detritus" = 17, "macroparasite" = 15,
-                "micropredator" = 16, "nonfeeding" = 17, "parasitic castrator" = 15,
-                "pathogen" = 16, "predator" = 17, "trophically transmitted parasite" = 15, "parasitoid" = 16)
-colour.spec = c("autotroph" = "green", "detritivore" = "grey", "detritus" = "brown", "macroparasite" = "red",
-                "micropredator" = "blue", "nonfeeding" = "darkgreen", "parasitic castrator" = "orange",
-                "pathogen" = "coral", "predator" = "black", "trophically transmitted parasite" = "purple", "parasitoid" = "steelblue")
+# # symbols -----
+# symbol.spec = c("autotroph" = 15, "detritivore" = 16, "detritus" = 17, "macroparasite" = 15,
+#                 "micropredator" = 16, "nonfeeding" = 17, "parasitic castrator" = 15,
+#                 "pathogen" = 16, "predator" = 17, "trophically transmitted parasite" = 15, "parasitoid" = 16)
+# colour.spec = c("autotroph" = "green", "detritivore" = "grey", "detritus" = "brown", "macroparasite" = "red",
+#                 "micropredator" = "blue", "nonfeeding" = "darkgreen", "parasitic castrator" = "orange",
+#                 "pathogen" = "coral", "predator" = "black", "trophically transmitted parasite" = "purple", "parasitoid" = "steelblue")
+# 
+# 
+# # plot
+# par(mfrow=c(1,2))
+# plot(BSQ_web, show.na = FALSE, symbol.by = 'functional.group', 
+#      symbol.spec = symbol.spec, colour.by = 'functional.group',
+#      colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
+# legend("topright", legend = names(colour.spec), pch = symbol.spec,
+#        col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
+#        text.width = 3)
+# # now with NA's
+# plot(BSQ_web, show.na = TRUE, symbol.by = 'functional.group', 
+#      symbol.spec = symbol.spec, colour.by = 'functional.group',
+#      colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
+# legend("topright", legend = names(colour.spec), pch = symbol.spec,
+#        col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
+#        text.width = 3)
+# par(mfrow=c(1,1))
+# 
+# # plot with missing N/M's
+# plot(BSQ_web, show.na = TRUE)
+# 
+# PlotWebByLevel(BSQ_web)
+# 
+# par(mfrow=c(1,2))
+# PlotNvM(BSQ_web, highlight.links = ResourceLargerThanConsumer(BSQ_web))
+# PlotNvM(BSQ_web, highlight.links = ResourceLargerThanConsumer(BSQ_web),
+#         show.na = TRUE)
+# par(mfrow=c(1,1)) This is cheddar plotting - not needed so far...
 
+#### ---- simplify network
+BSQlite <- RemoveNodes(BSQ, !complete.cases(nodes), method = "direct") # changing this to secondary/cascade results in NA nodes
+BSQlite
 
-# plot
-par(mfrow=c(1,2))
-plot(BSQ_web, show.na = FALSE, symbol.by = 'functional.group', 
-     symbol.spec = symbol.spec, colour.by = 'functional.group',
-     colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
-legend("topright", legend = names(colour.spec), pch = symbol.spec,
-       col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
-       text.width = 3)
-# now with NA's
-plot(BSQ_web, show.na = TRUE, symbol.by = 'functional.group', 
-     symbol.spec = symbol.spec, colour.by = 'functional.group',
-     colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
-legend("topright", legend = names(colour.spec), pch = symbol.spec,
-       col = colour.spec, pt.bg = colour.spec, cex = .5, pt.cex = 1,
-       text.width = 3)
-par(mfrow=c(1,1))
+plot(BSQlite, show.nodes.as = "labels", node.labels = "node", cex = .5, show.na = T)
+PlotWebByLevel(BSQlite, show.na = FALSE, show.nodes.as = "labels", node.labels = "node", cex = .5,
+               highlight.links = ResourceLargerThanConsumer(BSQlite))
 
-# plot with missing N/M's
-plot(BSQ_web, show.na = TRUE)
-
-PlotWebByLevel(BSQ_web)
-
-par(mfrow=c(1,2))
-PlotNvM(BSQ_web, highlight.links = ResourceLargerThanConsumer(BSQ_web))
-PlotNvM(BSQ_web, highlight.links = ResourceLargerThanConsumer(BSQ_web),
-        show.na = TRUE)
-par(mfrow=c(1,1))
+# now any isolated nodes
+BSQlite <- RemoveIsolatedNodes(BSQlite) #there are 0 anyway:
+IsolatedNodes(BSQlite)

@@ -2,12 +2,12 @@
 # Start -------------------------------------------------------------------
 
 library(tidyverse)
+library(ggforce)
 library(igraph)
 library(fluxweb)
 library(cheddar)
+library(ggfortify)
 
-rm(list = ls())
-set.seed(1)
 
 # Load in the edges and nodes ------------------------------------------------------
 
@@ -84,113 +84,63 @@ properties <-  list(title = "CSM", M.units = "g", N.units = "no.ha")
 properties
 
 # make the community
-CSM_web <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+CSM <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-# symbols
+
+# Lumped Trophic Species --------------------------------------------------
+
+# CSM_lump <- LumpTrophicSpecies(CSM, include.isolated = FALSE)
+# 
+# par(mfrow = c(1,2))
+# plot(CSM)
+# plot(CSM_lump, show.na = TRUE)
+# par(mfrow = c(1,1))
+
+
+# removing N/M nodes with NA values ---------------------------------------
+# cant get rid of Basal nodes? Figure out which ones have N/M values:
+CSMbasal <- BasalNodes(CSM)
+CSMbasal #list of basal node names
+CSMbasal <- subset(nodes, node %in% CSMbasal) # now have all row values for the basal nodes in R
+complete.cases(CSMbasal) # none of the basal nodes are complete cases
+
+
+# get a list of node names that need removing?
+nodeNA <- nodes %>% filter(!complete.cases(.)) %>% 
+  select(node)
+nodeNA <- nodeNA %>% as.list # should work
+
+# now with NA nodes
+CSMlite <- RemoveNodes(CSM, !complete.cases(nodes), method = "direct") # changing this to secondary/cascade results in NA nodes
+plot(CSMlite, show.nodes.as = "labels", node.labels = "node", cex = .5, show.na = T)
+PlotWebByLevel(CSMlite, show.na = FALSE, show.nodes.as = "labels", node.labels = "node", cex = .5,
+               highlight.links = ResourceLargerThanConsumer(CSMlite))
+
+# now any isolated nodes
+CSMlite <- RemoveIsolatedNodes(CSMlite) #there are 0 anyway:
+IsolatedNodes(CSMlite)
+
+
+
+
+# exploratory plot --------------------------------------------------------
+
+# symbols for plot NvM
 symbol.spec = c("autotroph" = 15, "detritivore" = 16, "detritus" = 17, "macroparasite" = 15,
                 "micropredator" = 16, "nonfeeding" = 17, "parasitic castrator" = 15,
                 "pathogen" = 16, "predator" = 17, "trophically transmitted parasite" = 15)
 colour.spec = c("autotroph" = "green", "detritivore" = "grey", "detritus" = "brown", "macroparasite" = "red",
                 "micropredator" = "blue", "nonfeeding" = "darkgreen", "parasitic castrator" = "orange",
                 "pathogen" = "coral", "predator" = "black", "trophically transmitted parasite" = "purple")
-
-
-# plot
-plot(CSM_web, show.na = FALSE, symbol.by = 'functional.group', 
+# plot NvM
+plot(CSMlite, show.na = FALSE, symbol.by = 'functional.group',
      symbol.spec = symbol.spec, colour.by = 'functional.group',
      colour.spec = colour.spec, show.web = FALSE, cex = 1.5)
-
-
 legend("topright", legend = names(colour.spec), pch = symbol.spec,
        col = colour.spec, pt.bg = colour.spec, cex = .4, pt.cex = 1,
        text.width = 3)
 
-# plot with missing N/M's
-plot(CSM_web, show.na = TRUE)
+# add models by functional.group? - cant get to plot
+models <- NvMLinearRegressions(CSMlite, class = 'functional.group')
+colours <- PlotLinearModels(models, colour.spec = colour.spec)
 
-
-# exporting to iGraph? ----------------------------------------------------
-
-
-#### The ToIGraph function:
-ToIgraph <- function(community, weight=NULL)
-{
-  if(is.null(TLPS(community)))
-  {
-    stop("The community has no trophic links")
-  }
-  else
-  {
-    tlps <- TLPS(community, link.properties = weight)
-    if(!is.null(weight))
-    {
-      tlps$weight <- tlps[,weight]
-    }
-    return(graph.data.frame(tlps,
-                            vertices = NPS(community),
-                            directed = TRUE))
-  }
-}
-
-### Delete isolated nodes function
-delete.isolates <- function(graph, mode = 'all') {
-  isolates <- which(degree(graph, mode = mode) == 0) - 1
-  delete.vertices(graph, isolates)
-}
-
-# convert to Igraph object
-CSM.ig <- ToIgraph(CSM_web)
-
-# removing the isolated nodes using igraph
-LO = layout_nicely(CSM.ig)
-Isolated = which(degree(CSM.ig)==0)
-CSMnew = delete.vertices(CSM.ig, Isolated)
-LO2 = LO[-Isolated,]
-plot(CSMnew, layout=LO2, vertex.size = 1, edge.size = 1)
-
-# layout the new network and plot
-lgrid <- layout_on_sphere(CSMnew)
-# ceb <- cluster_edge_betweenness(G2)
-# dendPlot(ceb, mode="hclust") # this is clustering detection for communities
-plot(CSMnew, layout = lgrid, label = NA) # horrible layout
-# .... Looks shite
-
-
-# tidygraph ---------------------------------------------------------------
-library(tidygraph)
-library(ggraph)
-
-# convert to tidygraph object
-graph <- as_tbl_graph(CSMnew)
-graph
-
-# test with previously made degree function plotting
-degree <- mutate(graph, centrality = centrality_degree()) %>% 
-  ggraph(layout = "kk") +
-  geom_edge_link(colour = "lightgray") +
-  scale_edge_width(range = c(1,6)) +
-  geom_node_point(aes(size = centrality, colour = centrality)) + 
-  scale_color_continuous(guide = 'legend') +
-  labs(colour = "Degree", size = "Degree") +
-  theme_graph(base_size = 15)
-plot(degree)
-
-# playing around
-ggraph(graph, layout = "linear") +
-  geom_edge_arc() +
-  scale_edge_width(range = c(.2, 10)) + 
-  geom_node_text(aes(label = functional.group)) +
-  theme_graph()
-
-
-# visNetwork --------------------------------------------------------------
-library(visNetwork)
-
-# converting from igraph object to vis network
-network = visIgraph(CSM.ig, layout = "layout_on_grid") %>%
-  visLayout(hierarchical = F,
-            improvedLayout = T)
-network # cool beans
-visSave(network, file = "CSM.html") # saves network as interactive HTML
-layout
-# glimpse(network$x)
