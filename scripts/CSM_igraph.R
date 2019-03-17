@@ -89,4 +89,19 @@ transitivity(g) # 0.1
 dyad.census(graph)
 plot(triad.census(graph))
 
+q <-  communities(graph)
 
+
+layout.matrix.1<-matrix(
+  nrow=length(V(graph)),  # Rows equal to the number of vertices
+  ncol=2
+)
+layout.matrix.1[,1]<-runif(length(V(otago.graph))) # randomly assign along x-axis
+layout.matrix.1[,2]<-troph.otago$TL # y-axis value based on trophic level
+
+layout.matrix.1p<-matrix(
+  nrow=length(V(otago.graph.p)),  # Rows equal to the number of vertices
+  ncol=2
+)
+layout.matrix.1p[,1]<-runif(length(V(otago.graph.p)))
+layout.matrix.1p[,2]<-troph.otago.p$TL
