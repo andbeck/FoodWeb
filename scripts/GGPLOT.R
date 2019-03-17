@@ -10,9 +10,10 @@ library(ggthemes)
 library(ggsci)
 
 
-source(file = "scripts/CSM Practice N:M.R")
-source(file = "scripts/QSM.R")
-source(file =  "scripts/EPB.R")
+source(file = "scripts/CSM.R")
+source(file = "scripts/BSQ.R")
+source(file = "scripts/EPB.R")
+
 # ggplot ------------------------------------------------------------------
 
 ggplot(NULL, aes(x = log10(M), y = log10(N), colour = functional.group,
@@ -40,10 +41,11 @@ p1 <- ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.gr
                         fill = functional.group, shape = site)) +
   geom_point(cex = 3, alpha = .7) +
   geom_smooth(method = "lm" , se = FALSE, cex = 1, aes(group = functional.group)) +
-  #facet_wrap(~ site) +
-  theme_minimal()
+  # facet_wrap(~ site) +
+  theme_minimal() +
+  # labs(title = "Carpinteria Nodes")
 p1
-  #+ scale_color_ucscgb()
+  # scale_color_ucscgb()
   
 
 # faceted ~ sites
@@ -51,9 +53,15 @@ p2 <- ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.gr
                               fill = functional.group), alpha = .5) +
   geom_point(cex = 3, alpha = .7) +
   # geom_smooth(method = "lm" , se = FALSE, cex = 1, aes(group = functional.group)) +
-  facet_wrap(~ site) +
+  facet_wrap(~ site, nrow = 2, ncol = 2) +
   theme_minimal() +
-  theme(legend.position="none")
+  theme(legend.position="none") +
+  stat_ellipse()
 p2
 
-plot_grid(p2, p1, ncol = 1) 
+plot_grid(p1, p2, ncol = 1) 
+
+ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.group, fill = functional.group)) +
+  # geom_point(cex = 3, alpha = .7) +
+  stat_ellipse(geom = "polygon", alpha = .5)
+

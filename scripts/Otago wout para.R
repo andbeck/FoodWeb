@@ -1,9 +1,6 @@
 library(tidyverse)
 library(cheddar)
 
-rm(list=ls())
-set.seed(1)
-
 #-----------
 # try and load in the Otago data set and clean it up
 nodes_Otago <- read.csv("./data/interactionwebdb/Otago/Otago_Data_Nodes.csv")
@@ -81,7 +78,7 @@ properties
 otago_web_para <- Community(nodes = nodes, properties = properties, trophic.links = trophic.links)
 
 # view it.
-plot(otago_web_para)
+# plot(otago_web_para)
 
 #----------
 # Now we need to do the same for the web without parasites
@@ -134,13 +131,13 @@ properties
 otago_web_pp <- Community(nodes = nodes, properties = properties, trophic.links = trophic.links)
 
 # view it.
-plot(otago_web_pp)
+# plot(otago_web_pp)
 
 # view side by side
-par(mfrow=c(1,2))
-plot(otago_web_para)
-plot(otago_web_pp)
-
-(otago_web_pp)
+# par(mfrow=c(1,2))
+# plot(otago_web_para)
+# plot(otago_web_pp)
+# 
+# (otago_web_pp)
 
 
