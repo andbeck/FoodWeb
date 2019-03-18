@@ -2,7 +2,7 @@
 # using netInd and Igraph to generate trophic level layout ----------------
 library(igraph)
 library(NetIndices)
-
+library(tidyverse)
 
 # read in data
 CSM_links <- read.csv("data/interactionwebdb/Carpinteria/CSMweb_Links.csv")
