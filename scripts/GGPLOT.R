@@ -42,7 +42,7 @@ p1 <- ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.gr
   geom_point(cex = 3, alpha = .7) +
   geom_smooth(method = "lm" , se = FALSE, cex = 1, aes(group = functional.group)) +
   # facet_wrap(~ site) +
-  theme_minimal() +
+  theme_grey()
   # labs(title = "Carpinteria Nodes")
 p1
   # scale_color_ucscgb()
@@ -54,7 +54,7 @@ p2 <- ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.gr
   geom_point(cex = 3, alpha = .7) +
   # geom_smooth(method = "lm" , se = FALSE, cex = 1, aes(group = functional.group)) +
   facet_wrap(~ site, nrow = 2, ncol = 2) +
-  theme_minimal() +
+  theme_grey() +
   theme(legend.position="none") +
   stat_ellipse()
 p2
@@ -63,5 +63,6 @@ plot_grid(p1, p2, ncol = 1)
 
 ggplot(carpinteria, aes(x = log10(M), y = log10(N), colour = functional.group, fill = functional.group)) +
   # geom_point(cex = 3, alpha = .7) +
-  stat_ellipse(geom = "polygon", alpha = .5)
+  stat_ellipse(geom = "polygon", alpha = .5) +
+  theme_grey(base_size = 15)
 

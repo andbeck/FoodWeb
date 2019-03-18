@@ -82,14 +82,16 @@ plot.igraph(CSM_graph,
             edge.arrow.size=.25,
             layout=layout.matrix.1,
             mark.groups = wtc_CSM$membership,
-            mark.col =  "green")
+            mark.col =  "green",
+            main = "CSM")
 plot.igraph(CSM_graph_pp,
             vertex.label.cex=.35,
             vertex.size=3,
             edge.arrow.size=.25,
             layout=layout.matrix.1,
             mark.groups = wtc_CSM_pp$membership,
-            mark.col = "red")
+            mark.col = "red",
+            main = "CSM PP")
 par(mfrow=c(1,1))
 # membership for both these webs are insanely high and memebrship doest work
 
@@ -160,7 +162,7 @@ for(i in 1:13){
 }
 
 par(mfrow=c(1,1))
-plot(subgraph_freq_CSM,type="o",lty=3, xlab="Subgraph",ylab="Frequency")
+plot(subgraph_freq_CSM,type="o",lty=3, xlab="Subgraph",ylab="Frequency", main = "CSM Subgraphs")
 points(subgraph_freq_CSM_pp,type="o",lty=2)
 
 plot(subgraph_freq_CSM~subgraph_freq_CSM_pp)

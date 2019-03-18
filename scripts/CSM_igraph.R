@@ -74,7 +74,9 @@ no.clusters(graph) # 1 cluster
 plot(degree.distribution(graph, mode = "in"), log = "xy") # in degree distribution
 plot(degree.distribution(graph, mode = "out"), log = "xy") # out degree distribution
 
-g <- erdos.renyi.game(vcount(graph), ecount(graph), type="gnm")# Random graph of same size
+g <- erdos.renyi.game(vcount(graph), ecount(graph), type="gnm")# Random graph of same size and links
+gnoe <- erdos.renyi.game(vcount(graph), p =  type="gnp")
+erdo
 
 max(degree(graph, mode="in")) # 92
 max(degree(graph, mode="out")) # 42 # all these values are 42 for random graph
@@ -84,24 +86,33 @@ graph.density(graph) # 0.05
 graph.density(g) # 0.1
 
 transitivity(graph) # 0.152
-transitivity(g) # 0.1 
+transitivity(g) # 0.1
+
+connectivity <- function(x){
+  S = vcount(x)
+  L = ecount(x)
+  C = L/S^2
+  print(C)
+}
+connectivity(graph)
+connectivity(g)
 
 dyad.census(graph)
 plot(triad.census(graph))
-
-q <-  communities(graph)
-
-
-layout.matrix.1<-matrix(
-  nrow=length(V(graph)),  # Rows equal to the number of vertices
-  ncol=2
-)
-layout.matrix.1[,1]<-runif(length(V(otago.graph))) # randomly assign along x-axis
-layout.matrix.1[,2]<-troph.otago$TL # y-axis value based on trophic level
-
-layout.matrix.1p<-matrix(
-  nrow=length(V(otago.graph.p)),  # Rows equal to the number of vertices
-  ncol=2
-)
-layout.matrix.1p[,1]<-runif(length(V(otago.graph.p)))
-layout.matrix.1p[,2]<-troph.otago.p$TL
+# 
+# q <-  communities(graph)
+# 
+# 
+# layout.matrix.1<-matrix(
+#   nrow=length(V(graph)),  # Rows equal to the number of vertices
+#   ncol=2
+# )
+# layout.matrix.1[,1]<-runif(length(V(otago.graph))) # randomly assign along x-axis
+# layout.matrix.1[,2]<-troph.otago$TL # y-axis value based on trophic level
+# 
+# layout.matrix.1p<-matrix(
+#   nrow=length(V(otago.graph.p)),  # Rows equal to the number of vertices
+#   ncol=2
+# )
+# layout.matrix.1p[,1]<-runif(length(V(otago.graph.p)))
+# layout.matrix.1p[,2]<-troph.otago.p$TL
