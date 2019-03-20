@@ -21,7 +21,7 @@ links_CSM <- read.csv("./data/interactionwebdb/Carpinteria/CSMweb_links.csv")
 
 # nodes
 glimpse(nodes_CSM)
-nodes_wrk <- nodes_CSM %>% select(NodeID, WorkingName, Abundance.no..ha., BodySize.g., ConsumerStrategy.stage.) %>% 
+nodes_wrk <- nodes_CSM %>% select(NodeID, WorkingName, Abundance.no..ha., BodySize.g., ConsumerStrategy.stage., ) %>% 
   mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
 glimpse(nodes_wrk)
 
@@ -119,8 +119,6 @@ PlotWebByLevel(CSMlite, show.na = FALSE, show.nodes.as = "labels", node.labels =
 # now any isolated nodes
 CSMlite <- RemoveIsolatedNodes(CSMlite) #there are 0 anyway:
 IsolatedNodes(CSMlite)
-
-
 
 
 # exploratory plot --------------------------------------------------------

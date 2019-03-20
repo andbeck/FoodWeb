@@ -57,7 +57,7 @@ layout.matrix.1p[,2]<-troph_CSM_pp
 
 # VIEW!!!!
 par(mfrow=c(1,2))
-plot.igraph(CSM_graph,
+plot.igraph(graph,
             vertex.label.cex=.35,
             vertex.size=3,
             edge.arrow.size=.25,
@@ -168,3 +168,16 @@ points(subgraph_freq_CSM_pp,type="o",lty=2)
 plot(subgraph_freq_CSM~subgraph_freq_CSM_pp)
 abline(a=0,b=1)
 
+
+# Use useful functions by Owen Petchey ------------------------------------
+source(file = "scripts/FoodWebFunctions.R")
+nichesim <- Niche.model(S = vcount(graph), ecount(graph), N = 1)
+nichesimplot <- graph_from_adjacency_matrix(as.matrix(nichesim))
+plot(nichesimplot)
+
+t1 <- Get.web.stats(nichesim)
+t2 <- Get.web.stats(CSM_adjmatrix)
+t3 <- Get.web.stats(CSM_adjmatrix_pp)
+
+table <- rbind.data.frame(t1, t2, t3)
+print(table)
