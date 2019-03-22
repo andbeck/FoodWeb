@@ -500,3 +500,9 @@ Matrix.to.list <- function(web.matrix, predator.first=TRUE){
   web.list
 }
 
+## Clean igraph objects
+clean.web <- function(web){
+  Isolated <-  which(degree(web)==0)
+  web <- delete.vertices(web, Isolated)
+  web <- simplify(web)
+}

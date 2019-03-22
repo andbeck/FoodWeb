@@ -20,21 +20,13 @@ CSM_graph_pp <- CSM_links %>% # these linktypeID's are in metadata
   filter(!str_detect(LinkTypeID, '4|5|6|8|9|12|14|15|16|19'))
 CSM_graph_pp <- graph.edgelist(as.matrix(CSM_graph_pp[,7:8]))
 
-clean.graph <- function(graph){ # function to remove multiple links and isolated nodes
-  # need to clean up some isolated nodes
-  Isolated <-  which(degree(graph)==0)
-  graph <- delete.vertices(graph, Isolated)
-  # simplify
-  graph <- simplify(graph)
-}
-
 # cleanup
-CSM_graph <- clean.graph(CSM_graph)
-CSM_graph_pp <- clean.graph(CSM_graph_pp)
+CSM_graph <- clean.web(CSM_graph)
+CSM_graph_pp <- clean.web(CSM_graph_pp)
 
 # get the webs into a matrix form
-CSM_adjmatrix <- get.adjacency(clean.graph(CSM_graph), sparse = F)
-CSM_adjmatrix_pp <- get.adjacency(clean.graph(CSM_graph_pp), sparse = F)
+CSM_adjmatrix <- get.adjacency(clean.web(CSM_graph), sparse = F)
+CSM_adjmatrix_pp <- get.adjacency(clean.web(CSM_graph_pp), sparse = F)
 
 # get basic network indices from the matrix with GenID()
 ind_CSM <- GenInd(CSM_adjmatrix)

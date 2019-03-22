@@ -92,8 +92,17 @@ properties
 
 # make the community
 CSM <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
+CSM_iso <- RemoveIsolatedNodes(CSM)
+CSM_ts <-  LumpTrophicSpecies(CSM_iso)
 
-PlotWebByLevel(RemoveIsolatedNodes(CSM))
-RemoveIsolatedNodes(CSM)
-PlotNvM(RemoveIsolatedNodes(CSM), PreyAveragedTrophicLevel(RemoveIsolatedNodes(CSM)))
-        
+par(mfrow = c(1,2))
+PlotCircularWeb(CSM_iso)
+PlotCircularWeb(CSM_ts)
+
+PlotWebByLevel(CSM_iso)
+PlotWebByLevel(CSM_ts)
+
+NumberOfNodes(CSM_iso)
+NumberOfNodes(CSM_ts)
+sum(NumberOfConsumers(CSM_iso))
+NumberOfNodesByClass(CSM_iso, "functional.group")

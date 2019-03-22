@@ -4,6 +4,7 @@ library(igraph)
 library(NetIndices)
 library(tidyverse)
 
+source("scripts/FoodWebFunctions.R")
 # read in data
 CSM_links <- read.csv("data/interactionwebdb/Carpinteria/CSMweb_Links.csv")
 CSM_nodes <- read.csv("data/interactionwebdb/Carpinteria/CSMweb_Nodes.csv")
@@ -168,16 +169,22 @@ points(subgraph_freq_CSM_pp,type="o",lty=2)
 plot(subgraph_freq_CSM~subgraph_freq_CSM_pp)
 abline(a=0,b=1)
 
+# motif <- as.data.frame(t(as.matrix(subgraph_freq_CSM)))
+# motif <- rbind(motif,
+#   as.data.frame(t(as.matrix(subgraph_freq_CSM_pp)))
+# )
+
 
 # Use useful functions by Owen Petchey ------------------------------------
-source(file = "scripts/FoodWebFunctions.R")
-nichesim <- Niche.model(S = vcount(graph), ecount(graph), N = 1)
-nichesimplot <- graph_from_adjacency_matrix(as.matrix(nichesim))
-plot(nichesimplot)
+# source(file = "scripts/FoodWebFunctions.R")
+# nichesim <- Niche.model(S = vcount(clean.web(CSM_graph)), ecount(clean.web(CSM_graph)), N = 1)
+# nichesimplot <- graph_from_adjacency_matrix(as.matrix(nichesim))
+# plot(nichesimplot)
+# 
+# t1 <- Get.web.stats(nichesim)
+# t2 <- Get.web.stats(CSM_adjmatrix)
+# t3 <- Get.web.stats(CSM_adjmatrix_pp)
+# 
+# table <- rbind.data.frame(t1, t2, t3)
+# print(table)
 
-t1 <- Get.web.stats(nichesim)
-t2 <- Get.web.stats(CSM_adjmatrix)
-t3 <- Get.web.stats(CSM_adjmatrix_pp)
-
-table <- rbind.data.frame(t1, t2, t3)
-print(table)
