@@ -7,6 +7,9 @@ library(fluxweb)
 library(cheddar)
 library(cowplot)
 
+source("scripts/ExportIgraph.R")
+source("scripts/FoodWebFunctions.R")
+
 # Load in the edges and nodes ------------------------------------------------------
 
 nodes_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_nodes.csv")
@@ -133,5 +136,16 @@ PlotWebByLevel(BSQlite, show.na = FALSE, show.nodes.as = "labels", node.labels =
 BSQlite <- RemoveIsolatedNodes(BSQlite) #there are 0 anyway:
 IsolatedNodes(BSQlite)
 
-plot(BSQlite, ChainAveragedTrophicLevel(BSQlite))
+# trophic species
+BSQtroph <- LumpTrophicSpecies(BSQlite)
+PlotWebByLevel(BSQtroph, main = "BSQ - Complete Cases and Trophic Species")
+PlotNvM(BSQtroph)
+
+# Turn community back into an igraph object 
+nodes <- BSQtroph$nodes
+edges <- BSQtroph$trophic.links
+
+iBSQ <- plot(graph_from_edgelist(as.matrix(edges)))
+
+
 

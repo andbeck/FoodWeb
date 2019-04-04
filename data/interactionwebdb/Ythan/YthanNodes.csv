@@ -1,0 +1,93 @@
+node,category,M,N,kingdom,phylum,class,order,family,genus,species,resolved.to,common.name
+Lutra lutra,vert.endo,12e3,2,Animalia,Chordata,Mammalia,Carnivora,Mustelidae,Lutra,lutra,Species,European Otter
+Phalacrocorax carbo,vert.endo,2250,30,Animalia,Chordata,Aves,Pelecaniformes,Phalacrocoracidae,Phalacrocorax,carbo,Species,Great Cormorant
+Ardea cinerea,vert.endo,1097,10,Animalia,Chordata,Aves,Ciconiiformes,Ardeidae,Ardea,cinerea,Species,Grey Heron
+Cygnus olor,vert.endo,10250,35,Animalia,Chordata,Aves,Anseriformes,Anatidae,Cygnus,olor,Species,Mute Swan
+Tadorna tadorna,vert.endo,1112,55,Animalia,Chordata,Aves,Anseriformes,Anatidae,Tadorna,tadorna,Species,Common Shelduck
+Anas penelope,vert.endo,710,350,Animalia,Chordata,Aves,Anseriformes,Anatidae,Anas,penelope,Species,Eurasian Wigeon
+Somateria mollissima,vert.endo,2150,3350,Animalia,Chordata,Aves,Anseriformes,Anatidae,Somateria,mollissima,Species,Common Eider
+Somateria mollissima (juvenile),vert.endo,700,1834,Animalia,Chordata,Aves,Anseriformes,Anatidae,Somateria,mollissima,Species,Common Eider
+Haematopus ostralegus,vert.endo,540,250,Animalia,Chordata,Aves,Charadriiformes,Haematopodidae,Haematopus,ostralegus,Species,Eurasian Oystercatcher
+Charadrius hiaticula,vert.endo,63,5,Animalia,Chordata,Aves,Charadriiformes,Charadriidae,Charadrius,hiaticula,Species,Common Ringed Plover
+Pluvialis apricaria,vert.endo,180,200,Animalia,Chordata,Aves,Charadriiformes,Charadriidae,Pluvialis,apricaria,Species,European Golden Plover
+Pluvialis squatarola,vert.endo,227,200,Animalia,Chordata,Aves,Charadriiformes,Charadriidae,Pluvialis,squatarola,Species,Grey Plover
+Vanellus vanellus,vert.endo,243,200,Animalia,Chordata,Aves,Charadriiformes,Charadriidae,Vanellus,vanellus,Species,Northern Lapwing
+Calidris alpina,vert.endo,48,350,Animalia,Chordata,Aves,Charadriiformes,Scolopacidae,Calidris,alpina,Species,Dunlin
+Limosa lapponica,vert.endo,301,12,Animalia,Chordata,Aves,Charadriiformes,Scolopacidae,Limosa,lapponica,Species,Bar-tailed Godwit
+Numenius arquata,vert.endo,725,5,Animalia,Chordata,Aves,Charadriiformes,Scolopacidae,Numenius,arquata,Species,Eurasian Curlew
+Tringa totanus,vert.endo,117,400,Animalia,Chordata,Aves,Charadriiformes,Scolopacidae,Tringa,totanus,Species,Common Redshank
+Arenaria interpres,vert.endo,110,35,Animalia,Chordata,Aves,Charadriiformes,Scolopacidae,Arenaria,interpres,Species,Ruddy Turnstone
+Larus canus,vert.endo,386,15,Animalia,Chordata,Aves,Charadriiformes,Laridae,Larus,canus,Species,Mew Gull
+Larus ridibundus,vert.endo,180,150,Animalia,Chordata,Aves,Charadriiformes,Laridae,Larus,ridibundus,Species,Black-headed Gull
+Larus argentatus,vert.endo,885,30,Animalia,Chordata,Aves,Charadriiformes,Laridae,Larus,argentatus,Species,Herring Gull
+Larus marinus,vert.endo,1330,20,Animalia,Chordata,Aves,Charadriiformes,Laridae,Larus,marinus,Species,Great Black-backed Gull
+Sterna Sandvicensis,vert.endo,230,462,Animalia,Chordata,Aves,Charadriiformes,Laridae,Sterna,Sandvicensis,Species,Sandwich Tern
+Sterna hirundo,vert.endo,126,409,Animalia,Chordata,Aves,Charadriiformes,Laridae,Sterna,hirundo,Species,Common Tern
+Sterna paradisaea,vert.endo,110,30,Animalia,Chordata,Aves,Charadriiformes,Laridae,Sterna,paradisaea,Species,Arctic Tern
+Corvus frugilegus,vert.endo,446,8,Animalia,Chordata,Aves,Passeriformes,Corvidae,Corvus,frugilegus,Species,Rook
+Corvus corone,vert.endo,487,12,Animalia,Chordata,Aves,Passeriformes,Corvidae,Corvus,corone,Species,Carrion Crow
+Sprattus sprattus,vert.ecto,3,10400,Animalia,Chordata,Actinopterygii,Clupeiformes,Clupeidae,Sprattus,sprattus,Species,European Sprat
+Clupea harengus,vert.ecto,5,10400,Animalia,Chordata,Actinopterygii,Clupeiformes,Clupeidae,Clupea,harengus,Species,Atlantic herring
+Anguilla anguilla,vert.ecto,90,20800,Animalia,Chordata,Actinopterygii,Anguilliformes,Anguillidae,Anguilla,anguilla,Species,European Eel
+Syngnathus rostellatus,vert.ecto,2,2080,Animalia,Chordata,Actinopterygii,Syngnathiformes,Syngnathidae,Syngnathus,rostellatus,Species,Lesser pipefish
+Pollachius virens,vert.ecto,125,2080,Animalia,Chordata,Actinopterygii,Gadiformes,Gadidae,Pollachius,virens,Species,Coley
+Ciliata mustela,vert.ecto,10,20800,Animalia,Chordata,Actinopterygii,Gadiformes,Lotidae,Ciliata,mustela,Species,Fivebeard rockling
+Ammodytes tobianus,vert.ecto,2,2080,Animalia,Chordata,Actinopterygii,Perciformes,Ammodytidae,Ammodytes,tobianus,Species,Lesser sand eel
+Pholis gunnellus,vert.ecto,85,20800,Animalia,Chordata,Actinopterygii,Perciformes,Pholidae,Pholis,gunnellus,Species,Rock gunnel
+Zoarces viviparus,vert.ecto,1.5,20800,Animalia,Chordata,Actinopterygii,Perciformes,Zoarcidae,Zoarces,viviparus,Species,Viviparous eelpout
+Pomatoschistus minutus,vert.ecto,6.204,104e5,Animalia,Chordata,Actinopterygii,Perciformes,Gobiidae,Pomatoschistus,minutus,Species,Sand goby
+Pomatoschistus microps,vert.ecto,6.204,416e5,Animalia,Chordata,Actinopterygii,Perciformes,Gobiidae,Pomatoschistus,microps,Species,Common goby
+Myoxocephalus scorpius,vert.ecto,15,20800,Animalia,Chordata,Actinopterygii,Scorpaeniformes,Cottidae,Myoxocephalus,scorpius,Species,Shorthorn sculpin
+Agonus cataphractus,vert.ecto,15,20800,Animalia,Chordata,Actinopterygii,Scorpaeniformes,Agonidae,Agonus,cataphractus,Species,Hooknose
+Gasterosteus aculeatus,vert.ecto,2,20800,Animalia,Chordata,Actinopterygii,Gasterosteiformes,Gasterosteidae,Gasterosteus,aculeatus,Species,Three-spined stickleback
+Pleuronectes platessa,vert.ecto,27,686400,Animalia,Chordata,Actinopterygii,Pleuronectiformes,Pleuronectidae,Pleuronectes,platessa,Species,European plaice
+Platichthys flesus,vert.ecto,125,264160,Animalia,Chordata,Actinopterygii,Pleuronectiformes,Pleuronectidae,Platichthys,flesus,Species,European flounder
+Platichthys flesus (juvenile),vert.ecto,27,332800,Animalia,Chordata,Actinopterygii,Pleuronectiformes,Pleuronectidae,Platichthys,flesus,Species,European flounder
+Salmo trutta,vert.ecto,480,1e4,Animalia,Chordata,Actinopterygii,Salmoniformes,Salmonidae,Salmo,trutta,Species,Brown trout
+Crangon crangon,invertebrate,2.26315789473684,104e5,Animalia,Arthropoda,Malacostraca,Decapoda,Crangonidae,Crangon,crangon,Species,Common shrimp
+Hyale nilssoni,invertebrate,0.0227272727272727,416e4,Animalia,Arthropoda,Malacostraca,Amphipoda,Hyalidae,Hyale,nilssoni,Species,
+Carcinus maenas,invertebrate,10,624e4,Animalia,Arthropoda,Malacostraca,Decapoda,Portunidae,Carcinus,maenas,Species,Green crab
+Hydrobia ulvae,invertebrate,0.00134328358208955,14144e7,Animalia,Mollusca,Gastropoda,Littorinimorpha,Hydrobiidae,Hydrobia,ulvae,Species,Laver spire shell
+Ostracods,invertebrate,6.81818181818182e-6,531544e5,Animalia,Arthropoda,Ostracoda,,,,,Class,
+Calanoid copepods,invertebrate,6.81818181818182e-6,34528e7,Animalia,Arthropoda,Maxillopoda,Calanoida,,,,Order,
+Harpacticoid copepods,invertebrate,6.81818181818182e-6,55466528e4,Animalia,Arthropoda,Maxillopoda,Harpacticoida,,,,Order,
+Semibalanus balanoides,invertebrate,3.92156862745098e-6,44444e4,Animalia,Arthropoda,Maxillopoda,Sessilia,Archaeobalanidae,Semibalanus,balanoides,Species,
+Neomysis integer,invertebrate,0.15625,1664e4,Animalia,Arthropoda,Malacostraca,Mysida,Mysidae,Neomysis,integer,Species,
+Mya arenaria,invertebrate,0.666666666666667,1456e4,Animalia,Mollusca,Bivalvia,Myoida,Myidae,Mya,arenaria,Species,Soft-shell clam
+Talitrus saltator,invertebrate,0.0318181818181818,1664e4,Animalia,Arthropoda,Malacostraca,Amphipoda,Talitridae,Talitrus,saltator,Species,
+Corophium volutator,invertebrate,0.00909090909090909,52e9,Animalia,Arthropoda,Malacostraca,Amphipoda,Corophiidae,Corophium,volutator,Species,
+Bathyporeia pilosa,invertebrate,0.00909090909090909,871200,Animalia,Arthropoda,Malacostraca,Amphipoda,Pontoporeiidae,Bathyporeia,pilosa,Species,
+Gammarus spp.,invertebrate,0.0295454545454545,26e6,Animalia,Arthropoda,Malacostraca,Amphipoda,Gammaridae,Gammarus,,Genus,
+Idotea emarginata,invertebrate,0.0227272727272727,1e5,Animalia,Arthropoda,Malacostraca,Isopoda,Idoteidae,Idotea,emarginata,Species,
+Jaera marina,invertebrate,0.0136363636363636,6e5,Animalia,Arthropoda,Malacostraca,Isopoda,Janiridae,Jaera,marina,Species,
+Eurydice pulchra,invertebrate,0.0181818181818182,12e4,Animalia,Arthropoda,Malacostraca,Isopoda,Cirolanidae,Eurydice,pulchra,Species,Speckled sea louse
+Nototropis spp.,invertebrate,0.0227272727272727,12e4,Animalia,Arthropoda,Malacostraca,Amphipoda,Atylidae,Nototropis,,Genus,
+Nematodes,invertebrate,1.30434782608696e-4,71644352e4,Animalia,Nematoda,,,,,,Phylum,
+Diatoms,producer,6.66666666666667e-6,6274944e6,Chromista,Ochrophyta,Bacillariophyceae,,,,,Class,
+Nereis virens,invertebrate,1.25,1344e3,Animalia,Annelida,Polychaeta,Phyllodocida,Nereididae,Nereis,virens,Species,
+Nereis diversicolor,invertebrate,0.125,2496e6,Animalia,Annelida,Polychaeta,Phyllodocida,Nereididae,Nereis,diversicolor,Species,
+Hesionidae,invertebrate,0.01875,416e5,Animalia,Annelida,Polychaeta,Phyllodocida,Hesionidae,,,Family,
+Parathemisto spp.,invertebrate,0.00625,312e5,Animalia,Arthropoda,Malacostraca,Amphipoda,Hyperiidae,Parathemisto,,Genus,
+Phyllodoce,invertebrate,1.25,73632e4,Animalia,Annelida,Polychaeta,Phyllodocida,Phyllodocidae,Phyllodoce,,Genus,
+Eteone,invertebrate,0.625,11024e4,Animalia,Annelida,Polychaeta,Phyllodocida,Phyllodocidae,Eteone,,Genus,
+Pygospio elegans,invertebrate,4.16666666666667e-4,38272e4,Animalia,Annelida,Polychaeta,Spionida,Spionidae,Pygospio,elegans,Species,
+Capitellidae,invertebrate,4.16666666666667e-4,86528e4,Animalia,Annelida,Polychaeta,,Capitellidae,,,Family,
+Manayunkia aestuarina,invertebrate,2.08333333333333e-4,312e9,Animalia,Annelida,Polychaeta,Sabellida,Fabriciidae,Manayunkia,aestuarina,Species,
+Aricia spp.,invertebrate,1.25e-4,52e6,Animalia,Annelida,Polychaeta,,Orbiniidae,Aricia,,Genus,
+Arenicola marina,invertebrate,0.166666666666667,4576e4,Animalia,Annelida,Polychaeta,,Arenicolidae,Arenicola,marina,Species,Lugworm
+Tubificoides benedeni,invertebrate,0.0111111111111111,2912e7,Animalia,Annelida,Clitellata,Haplotaxida,Tubificidae,Tubificoides,benedeni,Species,
+Tubifex costatus,invertebrate,5.55555555555556e-4,312e8,Animalia,Annelida,Clitellata,Haplotaxida,Tubificidae,Tubifex,costatus,Species,
+Fucus ceranoides,producer,0.25,3e5,Chromista,Ochrophyta,Phaeophyceae,Fucales,Fucaceae,Fucus,ceranoides,Species,
+Littorina littorea,invertebrate,0.09,104e5,Animalia,Mollusca,Gastropoda,Littorinimorpha,Littorinidae,Littorina,littorea,Species,Common periwinkle
+Littorina saxatilis,invertebrate,0.016,55e4,Animalia,Mollusca,Gastropoda,Littorinimorpha,Littorinidae,Littorina,saxatilis,Species,Rough periwinkle
+Alderia modesta,invertebrate,0.001,208e4,Animalia,Mollusca,Gastropoda,Sacoglossa,Stiligeridae,Limapontiidae,modesta,Species,
+Retusa obtusa,invertebrate,8e-4,5616e4,Animalia,Mollusca,Gastropoda,Cephalaspidea,Retusidae,Retusa,obtusa,Species,Arctic barrel-bubble
+Macoma balthica,invertebrate,0.07,936e6,Animalia,Mollusca,Bivalvia,Veneroida,Tellinidae,Macoma,balthica,Species,Baltic macoma
+Mytilus edulis,invertebrate,0.4,32424e4,Animalia,Mollusca,Bivalvia,Mytiloida,Mytilidae,Mytilus,edulis,Species,Blue mussel
+Cerastoderma edule,invertebrate,0.5,1248e5,Animalia,Mollusca,Bivalvia,Veneroida,Cardiidae,Cerastoderma,edule,Species,Common cockle
+Chironomid larvae,invertebrate,1.05263157894737e-4,624e6,Animalia,Arthropoda,Insecta,Diptera,Chironomidae,,,Family,
+Diptera larvae/pupae,invertebrate,0.0105263157894737,624e6,Animalia,Arthropoda,Insecta,Diptera,,,,Order,
+Acarina,invertebrate,4.34782608695652e-5,312e8,Animalia,Arthropoda,Arachnida,,,,,Class,
+Foraminifera,invertebrate,1.25e-5,18512e7,Rhizaria,Foraminifera,,,,,,Phylum,
+Enteromorpha,producer,0.0025,208e5,Plantae,Chlorophyta,Ulvophyceae,Ulvales,Ulvaceae,Enteromorpha,,Genus,
+POM (detritus),,NA,NA,,,,,,,,,

@@ -34,17 +34,18 @@ data("YthanEstuary")
 
 # 1. Food web matrix
 adj_list <- YthanEstuary$trophic.links
-# adj_list <- slice(adj_list, "POM (detritus)")
+# adj_list <- slice(adj_list, "POM (detritus)") #not needed
 graph <- graph_from_edgelist(as.matrix(adj_list))
 food.web <- as.matrix(as_adjacency_matrix(graph))
 
 # 2. generate body mass from these trophic levels
 bodymasses <- as.vector(YthanEstuary$nodes$M)
-bodymasses[is.na(bodymasses)] <- 1000 # give NA for detritus a value?.. what value?
+bodymasses[is.na(bodymasses)] <- NA # give NA for detritus a value?.. what value?
 
 # 3. generate biomass for each pop (N*M)
 biomasses <- bodymasses * as.vector(YthanEstuary$nodes$N)
-biomasses[is.na(biomasses)] <-1000 
+biomasses[is.na(biomasses)] <- 1 # I don't think this value makes any difference at all because its basal? 
+# Only cares about flux value used  in the web, not the amount of detritus biomass present
 
 # 4. a vector with organism types
 org.type <-  as.vector(YthanEstuary$nodes$category)
@@ -59,7 +60,7 @@ org.type[org.type == "producer"] <- "plant"
 # 5. a vector of the metabolic types
 met.types = c("Ectothermic vertebrates", "Endothermic vertebrates", "Invertebrates")
 
-# Calculate losses | X = aM^b
+# Calculate losses with X = aM^b
 # a = 0.71 | b = -0.25
 losses = rep(NA, 92)
 ecto.vert = met.types == "Ectothermic vertebrates"
@@ -68,9 +69,9 @@ inv = met.types == "Invertebrates"
 losses[ecto.vert] = 18.18 * bodymasses[ecto.vert] ^ (-0.29)
 losses[endo.vert] = 19.5 * bodymasses[endo.vert] ^ (-0.29)
 losses[inv] = 18.18 * bodymasses[inv] ^ (-0.29)
-# losses[c(65, 79, 91, 92)] <-  0 # set basal nodes to 0 losses?
+losses[c(65, 79, 91, 92)] <-  0 # set basal nodes to 0 losses?
 
-# Calculate efficiencies
+# Calculate efficiencies - values given in vignette for org.types
 efficiencies <-  rep(NA, 92)
 efficiencies[org.type == "animal"] <- 0.906
 efficiencies[org.type == "plant"] <- 0.545
@@ -83,8 +84,7 @@ mat.fluxes <- fluxing(food.web, biomasses, losses, efficiencies)
 basal = colSums(mat.fluxes) == 0
 sum(basal) # 4 basal species
 
-# Plants
-plantspp #65, 79, 91, 92
+# Plants #65, 79, 91, 92
 plants = basal
 plants[92] <-  FALSE
 
@@ -101,7 +101,49 @@ fluxes <- c(herbivory, carnivory, detritivory, total)
 feedingtype <- c("herbivory", "carnivory", "detritivory", "total")
 flux <- data.frame(fluxes, feedingtype)
 
-ggplot(flux, aes(x = feedingtype, y = fluxes, fill = feedingtype)) +
+ggplot(flux, aes(x = feedingtype, y = log10(fluxes), fill = feedingtype)) +
   geom_bar(stat = "identity")
 
-     
+# uncertainties using sensitivity analysis of fluxes ----------------------
+
+
+# creation of vectors to store the standard deviation of c.v. 
+# for each uncertainty level
+
+##  Whole function gives an error regarding the intervality of the losses sequence ##
+
+# sd.cvs.eff = c()
+# sd.cvs.los = c()
+# sd.cvs.mat = c()
+# 
+# for (var in seq(0, 1, 0.01)) {
+#   cat('var: ', var, '\n')
+#   # for efficiencies
+#   res = sensitivity(fluxing, "efficiencies", var, 50,
+#                     mat = food.web,
+#                     biomasses = biomasses,
+#                     losses = losses,
+#                     efficiencies = efficiencies)
+#   sd.cvs.eff = c(sd.cvs.eff, mean(res[[2]]), na.rm = TRUE)
+#   
+#   # for losses
+#   res = sensitivity(fluxing, "losses", var, 50,
+#                     mat = food.web,
+#                     biomasses = biomasses,
+#                     losses = losses,
+#                     efficiencies = efficiencies)
+#   sd.cvs.los = c(sd.cvs.los, mean(res[[2]]), na.rm = TRUE)
+#  
+#    # for preferences
+#   res = sensitivity(fluxing, "mat", var, 50,
+#                     mat = food.web,
+#                     biomasses = biomasses,
+#                     losses = losses,
+#                     efficiencies = efficiencies)
+#   sd.cvs.mat = c(sd.cvs.mat, mean(res[[2]]), na.rm = TRUE)
+#   
+# }
+
+# web using fluxes as width -----------------------------------------------
+
+

@@ -50,7 +50,7 @@ V(graph)$color = gsub("macroparasite", "orange", V(graph)$color)
 V(graph)$color = gsub("parasitic castrator", "red", V(graph)$color)
 V(graph)$color = gsub("nonfeeding", "white", V(graph)$color)
 V(graph)$color = gsub("pathogen", "purple", V(graph)$color)
-V(graph)$color <- gsub("trophically transmitted parasite", "blue", V(graph)$color)
+V(graph)$color = gsub("trophically transmitted parasite", "blue", V(graph)$color)
 V(graph)$color
 
 # set vertex size based on degree
@@ -75,8 +75,7 @@ plot(degree.distribution(graph, mode = "in"), log = "xy") # in degree distributi
 plot(degree.distribution(graph, mode = "out"), log = "xy") # out degree distribution
 
 g <- erdos.renyi.game(vcount(graph), ecount(graph), type="gnm")# Random graph of same size and links
-gnoe <- erdos.renyi.game(vcount(graph), p =  type="gnp")
-erdo
+
 
 max(degree(graph, mode="in")) # 92
 max(degree(graph, mode="out")) # 42 # all these values are 42 for random graph
@@ -116,3 +115,4 @@ plot(triad.census(graph))
 # )
 # layout.matrix.1p[,1]<-runif(length(V(otago.graph.p)))
 # layout.matrix.1p[,2]<-troph.otago.p$TL
+
