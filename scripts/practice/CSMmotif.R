@@ -4,7 +4,7 @@ library(igraph)
 library(NetIndices)
 library(tidyverse)
 
-source("scripts/FoodWebFunctions.R")
+source("scripts/practice/FoodWebFunctions.R")
 # read in data
 CSM_links <- read.csv("data/interactionwebdb/Carpinteria/CSMweb_Links.csv")
 CSM_nodes <- read.csv("data/interactionwebdb/Carpinteria/CSMweb_Nodes.csv")
