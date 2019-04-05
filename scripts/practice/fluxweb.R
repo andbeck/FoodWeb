@@ -146,4 +146,5 @@ ggplot(flux, aes(x = feedingtype, y = log10(fluxes), fill = feedingtype)) +
 
 # web using fluxes as width -----------------------------------------------
 
-
+g <- graph_from_adjacency_matrix(sqrt(mat.fluxes))
+plot(g)

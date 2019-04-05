@@ -33,8 +33,7 @@ Isolated <-  which(degree(graph)==0)
 graph <- delete.vertices(graph, Isolated)
 
 # simplify
-graph <- simplify(graph, remove.multiple = T)
-
+graph <- simplify(graph)
 # add colours depending on FunctionalGroup
 library(RColorBrewer)
 

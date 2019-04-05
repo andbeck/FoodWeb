@@ -21,22 +21,16 @@ epb_links <- read.csv("data/interactionwebdb/Carpinteria/EPBweb_Links.csv")
 
 # 1) BSQ...
 
-bsq_n <- 
+bsq_na <- 
   bsq_nodes %>% 
   drop_na(Biomass.kg.ha., BodySize.g.)
 
-# create clone of nodes file and rename Species.StageID to ConsumerSpecies.StageID
+bsq_n <- 
+  bsq_na %>% 
+  select(NodeID, WorkingName, Abundance.no..ha., 
+         BodySize.g., ConsumerStrategy.stage., Biomass.kg.ha.) %>%
+  mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"),
+         BodySize.kg = BodySize.g. * 1000)
 
-bsq_n_clone <- 
-  bsq_n %>% 
-  rename(ConsumerSpecies.StageID = SpeciesID.StageID)
-
-
-bsq_l <- 
-  bsq_links %>% 
-  semi_join(bsq_n_clone, by = "ConsumerSpecies.StageID")
-
-bsq_l <- # remove links that are no longer nodes
-  bsq_n[!bsq_n$SpeciesID.StageID %in% bsq_links$ConsumerSpecies.StageID,]
-
+is.na(bsq_n$Abundance.no..ha.)
 

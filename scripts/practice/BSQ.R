@@ -7,15 +7,15 @@ library(fluxweb)
 library(cheddar)
 library(cowplot)
 
-source("scripts/ExportIgraph.R")
-source("scripts/FoodWebFunctions.R")
+source("scripts/practice/ExportIgraph.R")
+source("scripts/practice/FoodWebFunctions.R")
 
 # Load in the edges and nodes ------------------------------------------------------
 
 nodes_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_nodes.csv")
 links_BSQ <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_links.csv")
 
-# Let’s try to make sense -------------------------------------------------
+# Lets try to make sense -------------------------------------------------
 # need to make a community file for cheddar and put them in a list
 
 ##### BSQ #####
