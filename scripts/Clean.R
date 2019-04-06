@@ -27,10 +27,23 @@ bsq_na <-
 
 bsq_n <- 
   bsq_na %>% 
-  select(NodeID, WorkingName, Abundance.no..ha., 
-         BodySize.g., ConsumerStrategy.stage., Biomass.kg.ha.) %>%
   mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"),
-         BodySize.kg = BodySize.g. * 1000)
+         BodySize = BodySize.g. * 1000,
+         Abundance = BodySize * Biomass.kg.ha.) %>% 
+  rename(Biomass = Biomass.kg.ha., ConsumerType = ConsumerStrategy.stage.) %>% 
+  select(NodeID, WorkingName, Abundance, BodySize, ConsumerType, Biomass)
 
-is.na(bsq_n$Abundance.no..ha.)
+
+# Select only links that are present in node data -------------------------
+
+bsq_l <- 
+  bsq_links %>% 
+  select(ConsumerNodeID, ResourceNodeID) %>% 
+  mutate(NodeID = ConsumerNodeID) 
+
+bsq_l <- 
+  bsq_l %>%  
+  semi_join(bsq_n, by = "NodeID")  
+  
+
 
