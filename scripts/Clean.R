@@ -33,17 +33,41 @@ bsq_n <-
   rename(Biomass = Biomass.kg.ha., ConsumerType = ConsumerStrategy.stage.) %>% 
   select(NodeID, WorkingName, Abundance, BodySize, ConsumerType, Biomass)
 
-
 # Select only links that are present in node data -------------------------
 
 bsq_l <- 
   bsq_links %>% 
-  select(ConsumerNodeID, ResourceNodeID) %>% 
-  mutate(NodeID = ConsumerNodeID) 
+  select(ConsumerNodeID, ResourceNodeID)
 
-bsq_l <- 
-  bsq_l %>%  
-  semi_join(bsq_n, by = "NodeID")  
+## use the %in% function? 
+
+## semi-Join?
+# bsq_wrk_con <- 
+#   bsq_l %>%  
+#   mutate(NodeID = ConsumerNodeID) %>% 
+#   anti_join(bsq_n, by = "NodeID")
+# 
+# bsq_wrk_res <- 
+#   bsq_l %>% 
+#   mutate(NodeID = ResourceNodeID) %>% 
+#   anti_join(bsq_n, by = "NodeID")
+
+## anti-join?
+# bsq_wrk_con <- 
+#   bsq_l %>%  
+#   mutate(NodeID = ConsumerNodeID) %>% 
+#   anti_join(bsq_n, by = "NodeID")
+# 
+# bsq_wrk_res <- 
+#   bsq_l %>% 
+#   mutate(NodeID = ResourceNodeID) %>% 
+#   anti_join(bsq_n, by = "NodeID")
+
+bsq_wrk <- 
+  rbind(bsq_wrk_con, bsq_wrk_res)
   
+
+
+
 
 
