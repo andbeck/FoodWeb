@@ -11,8 +11,8 @@ set.seed(1)
 
 # Load in the edges and nodes ------------------------------------------------------
 
-nodes_Otago <- read.csv("./data/interactionwebdb/Otago/Otago_Data_Nodes.csv")
-links_Otago <- read.csv("./data/interactionwebdb/Otago/Otago_Data_Links.csv")
+nodes_Otago <- read_csv("./data/interactionwebdb/Otago/Otago_Data_Nodes.csv")
+links_Otago <- read_csv("./data/interactionwebdb/Otago/Otago_Data_Links.csv")
 
 glimpse(nodes_Otago)
 glimpse(links_Otago)

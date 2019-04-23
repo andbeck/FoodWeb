@@ -124,10 +124,10 @@ E(epb)$color[E(epb)$LinkTypeID == 1] <- 'grey' # predation
 E(epb)$color[E(epb)$LinkTypeID == 14] <- 'grey' # concurrent predation on symbionts
 E(epb)$color[E(epb)$LinkTypeID == 15] <- 'grey' # trophic transmission
 E(epb)$color[E(epb)$LinkTypeID == 16] <- 'grey' # predation on free-living non-feeding stage
-E(epb)$color[E(epb)$LinkTypeID == 6] <- 'grey' # macroparasitism
+E(epb)$color[E(epb)$LinkTypeID == 6] <- 'red' # macroparasitism
 E(epb)$color[E(epb)$LinkTypeID == 4] <- 'grey' # parasitic castration
 E(epb)$color[E(epb)$LinkTypeID == 19] <- 'grey' # parasite intraguild antagonism
-E(epb)$color[E(epb)$LinkTypeID == 12] <- 'grey' # trophically transmitted parasitism
+E(epb)$color[E(epb)$LinkTypeID == 12] <- 'yellow' # trophically transmitted parasitism
 
 # plot
 plot(epb, layout = layout_with_lgl(epb), edge.arrow.size = .3)

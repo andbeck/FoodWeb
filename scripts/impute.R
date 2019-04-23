@@ -3,6 +3,7 @@ library(tidyverse)
 library(forcats)
 library(missForest)
 library(mice)
+library(VIM)
 rm(list=ls())
 set.seed(12)
 
@@ -149,4 +150,9 @@ sum_carp <- carp %>%
   summarise(BodySize = sum(BodySize),
             Abundance = sum(Abundance),
             Biomass = sum(Biomass))
-  
+
+# library(VIM)
+aggr(carp, col=c('navyblue','red'), 
+                 numbers=TRUE, sortVars=TRUE, labels=names(carp), 
+                 cex.axis=.7, gap=3, ylab=c("Histogram of missing data for Carp nodes","Pattern"))
+
