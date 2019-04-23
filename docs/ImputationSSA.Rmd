@@ -1,0 +1,51 @@
+---
+title: "Imputation of Missing Body Sizes in Parasites"
+author: "Daniel Smith"
+date: "17 April 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DiagrammeR)
+```
+
+## The need for Imputation
+
+* Lack of data for my MRes project that connects Consumer-Resource Ratios to flux levels flowing between trophic levels
+
+```{r}
+mermaid("
+graph TB
+  A-->B
+  A-->C
+  C-->E
+  B-->D
+  C-->D
+  D-->F
+  E-->F
+")
+```
+
+```{r}
+grViz("digraph flowchart {
+      # node definitions with substituted label text
+      node [fontname = Helvetica, shape = rectangle]        
+      tab1 [label = '@@1']
+      tab2 [label = '@@2']
+      tab3 [label = '@@3']
+      tab4 [label = '@@4']
+      tab5 [label = '@@5']
+
+      # edge definitions with the node IDs
+      tab1 -> {tab2, tab3, tab4, tab5};
+      }
+
+      [1]: 'Missing Data'
+      [2]: 'k-Nearest Neighbour'
+      [3]: 'Multivariate Imputation using Chained Equations'
+      [4]: 'missForest'
+      [5]: 'RPhylopars'
+      ")
+```
+

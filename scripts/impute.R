@@ -1,6 +1,6 @@
 # Script for Parasite list
 library(tidyverse)
-library(forcats)
+
 library(missForest)
 library(mice)
 rm(list=ls())
@@ -80,7 +80,7 @@ all_log <- mega %>%
   # log the values to reduce errors with colinearity of variables
   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
 
-# library(VIM)
+library(VIM)
 all_plot <- aggr(all_log, col=c('navyblue','red'), 
                   numbers=TRUE, sortVars=TRUE, labels=names(all_log), 
                   cex.axis=.7, gap=3, ylab=c("Histogram of missing data for all nodes","Pattern"))
@@ -128,7 +128,7 @@ phy[phy == ""] <- NA
 phy <- mutate_if(phy, is.character, as.factor)
 
 # create a phylo object
-phy1 <- as.phylo.formula(~Kingdom/Phylum/Order, 
+phy1 <- as.phylo.formula(~Kingdom/Phylum/Order,
                          data = phy)
 
 #-------
