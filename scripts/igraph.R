@@ -154,9 +154,104 @@ plot(epb, layout = layout.matrix.1, edge.arrow.size = .3)
 
 # Network Stats -----------------------------------------------------------
 webs <- list(bsq = "bsq", csm = "csm", epb ="epb")
+# need to make functions to apply to these
 
 
 # Motif Analysis ----------------------------------------------------------
+
+# Here are the adjacency matrices for each of the 13 subgraphs again
+s1<-matrix(c(0,1,0,0,0,1,0,0,0),nrow=3,ncol=3)
+s2<-matrix(c(0,1,1,0,0,1,0,0,0),nrow=3,ncol=3)
+s3<-matrix(c(0,1,0,0,0,1,1,0,0),nrow=3,ncol=3)
+s4<-matrix(c(0,0,1,0,0,1,0,0,0),nrow=3,ncol=3)
+s5<-matrix(c(0,1,1,0,0,0,0,0,0),nrow=3,ncol=3)
+d1<-matrix(c(0,1,1,0,0,1,0,1,0),nrow=3,ncol=3)
+d2<-matrix(c(0,1,1,1,0,1,0,0,0),nrow=3,ncol=3)
+d3<-matrix(c(0,0,1,1,0,0,1,0,0),nrow=3,ncol=3)
+d4<-matrix(c(0,0,0,1,0,1,0,1,0),nrow=3,ncol=3)
+d5<-matrix(c(0,1,1,0,0,1,1,0,0),nrow=3,ncol=3)
+d6<-matrix(c(0,1,1,1,0,1,1,1,0),nrow=3,ncol=3)
+d7<-matrix(c(0,1,1,1,0,1,1,0,0),nrow=3,ncol=3)
+d8<-matrix(c(0,1,1,1,0,0,1,0,0),nrow=3,ncol=3)
+
+# Turn them into a convenient list
+subgraph3.mat<-list(s1,s2,s3,s4,s5,d1,d2,d3,d4,d5,d6,d7,d8)
+# And then into a list of graph objects
+subgraph3.graph<-lapply(subgraph3.mat,graph.adjacency)
+
+# Count the number of the 13 different 3-node subgraphs in the two webs
+motif_csm_free<-c()
+motif_csm_para<-c()
+motif_bsq_free<-c()
+motif_bsq_para<-c()
+motif_epb_free<-c()
+motif_epb_para<-c()
+
+for(i in 1:13){
+  motif_csm_free [i]<-
+    graph.count.subisomorphisms.vf2(csm_free,subgraph3.graph[[i]])
+  motif_csm_para[i]<-
+    graph.count.subisomorphisms.vf2(csm,subgraph3.graph[[i]])
+  motif_bsq_free [i]<-
+    graph.count.subisomorphisms.vf2(bsq_free,subgraph3.graph[[i]])
+  motif_bsq_para[i]<-
+    graph.count.subisomorphisms.vf2(bsq,subgraph3.graph[[i]])
+  motif_epb_free [i]<-
+    graph.count.subisomorphisms.vf2(epb_free,subgraph3.graph[[i]])
+  motif_epb_para[i]<-
+    graph.count.subisomorphisms.vf2(epb,subgraph3.graph[[i]])
+}
+
+## plot subgraph frequencies
+par(mfrow=c(1,3))
+plot(motif_csm_para,type="o",lty=3, xlab="Subgraph",ylab="Frequency", main = "CSM Subgraphs")
+points(motif_csm_free,type="o",lty=2)
+plot(motif_bsq_para,type="o",lty=3, xlab="Subgraph",ylab="Frequency", main = "BSQ Subgraphs")
+points(motif_bsq_free,type="o",lty=2)
+plot(motif_epb_para,type="o",lty=3, xlab="Subgraph",ylab="Frequency", main = "EPB Subgraphs")
+points(motif_epb_free,type="o",lty=2)
+par(mfrow=c(1,1))
+
+
+
+## Table of motif frequency differences
+motifs <- data.frame(S1 = integer(),
+                 S2 = integer(),
+                 S3 = integer(),
+                 S4 = integer(),
+                 S5 = integer(),
+                 D1 = integer(),
+                 D2 = integer(),
+                 D3 = integer(),
+                 D4 = integer(),
+                 D5 = integer(),
+                 D6 = integer(),
+                 D7 = integer(),
+                 D8 = integer(),
+                 stringsAsFactors = FALSE)
+
+list_motif_results <- list("CSMFree" = motif_csm_free,
+                           "CSMPara" = motif_csm_para,
+                           "BSQFree" = motif_bsq_free,
+                           "BSQPara" = motif_bsq_para,
+                           "EPBFree" = motif_epb_free,
+                           "EPBPara" = motif_epb_para)
+
+motifs <- as.data.frame(do.call(rbind, list_motif_results))
+motifs <- motifs %>% 
+  rename(S1 = "V1", S2 = "V2", S3 = "V3", S4 = "V4", S5 = "V5",
+         D1 = "V6", D2 = "V7", D3 = "V8", D4 = "V9", D5 = "V10",
+         D6 = "V11", D7 = "V12", D8 = "V13")
+
+# give rownames new column and set rownames to null after
+motifs <- cbind(Web = rownames(motifs), motifs)
+rownames(motifs) <- NULL
+
+
+
+# do motifs in ggplot -- rownames need new column
+ggplot(motifs, aes())
+
 
 
 

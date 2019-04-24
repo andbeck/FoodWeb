@@ -10,9 +10,9 @@ library(ggthemes)
 library(ggsci)
 
 
-source(file = "scripts/CSM.R")
-source(file = "scripts/BSQ.R")
-source(file = "scripts/EPB.R")
+source(file = "scripts/practice/CSM.R")
+source(file = "scripts/practice/BSQ.R")
+source(file = "scripts/practice/EPB.R")
 
 # ggplot ------------------------------------------------------------------
 

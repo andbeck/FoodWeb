@@ -20,12 +20,12 @@ glimpse(mega)
 
 # remove columns with all NA values with this function
 not_all_na <- function(x) any(!is.na(x))
-para <- mega %>% # select if with NA all function
-  select_if(not_all_na)
+para <- mega %>% # dplyr::select if with NA all function
+  dplyr::select_if(not_all_na)
 
-# select useful columns into parasite file
+# dplyr::select useful columns into parasite file
 para <- mega %>%  
-  select(WorkingName, Lifestyle.stage., Resolution, BodySize.g., 
+  dplyr::select(WorkingName, Lifestyle.stage., Resolution, BodySize.g., 
          Biomass.kg.ha., Abundance.no..ha., Kingdom:SpecificEpithet) %>% 
   distinct()
 
@@ -42,7 +42,7 @@ summary(platy)
 
 # make new data frame with whatever variables
 platy_log <- platy %>%
-  select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
+  dplyr::select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
   rename(BodySize = BodySize.g., Biomass = Biomass.kg.ha., Abundance = Abundance.no..ha.) %>% 
   mutate(Abundance = Biomass / BodySize) %>% 
   # log the values to reduce errors with colinearity of variables
@@ -76,7 +76,7 @@ platy_log <- platy %>%
 
 ## All values - messing around...
 all_log <- mega %>% 
-  select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
+  dplyr::select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
   rename(BodySize = BodySize.g., Biomass = Biomass.kg.ha., Abundance = Abundance.no..ha.) %>% 
   # log the values to reduce errors with colinearity of variables
   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
@@ -99,7 +99,7 @@ summary(combine)
 # ## AS ABOVE BUT NEMATODES
 # nem <- phylum[["Nematoda"]]
 # nem_log <- nem %>% 
-#   select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
+#   dplyr::select(BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
 #   rename(BodySize = BodySize.g., Biomass = Biomass.kg.ha., Abundance = Abundance.no..ha.) %>% 
 #   # log the values to reduce errors with colinearity of variables
 #   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
@@ -119,7 +119,7 @@ summary(combine)
 # trying to get a phylogenetic tree
 library(phytools)
 phy <- para %>% 
-  select(WorkingName, Resolution, Kingdom, Phylum, 
+  dplyr::select(WorkingName, Resolution, Kingdom, Phylum, 
          Class, Order, Family, Genus, SpecificEpithet) %>% 
   rename(Species = SpecificEpithet) %>% 
   distinct()
@@ -135,7 +135,7 @@ phy1 <- as.phylo.formula(~Kingdom/Phylum/Order,
 #-------
 # create carp matrix by binding rows of subsets
 carp <- bind_rows(csm, bsq, epb) 
-carp <- carp %>% select(WorkingName, BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
+carp <- carp %>% dplyr::select(WorkingName, BodySize.g., Biomass.kg.ha. , Abundance.no..ha.) %>% 
   rename(BodySize = BodySize.g., Biomass = Biomass.kg.ha., Abundance = Abundance.no..ha.) %>% 
   mutate(BodySize = BodySize / 1000) 
   # log the values to reduce errors with colinearity of variables
@@ -155,4 +155,9 @@ sum_carp <- carp %>%
 aggr(carp, col=c('navyblue','red'), 
                  numbers=TRUE, sortVars=TRUE, labels=names(carp), 
                  cex.axis=.7, gap=3, ylab=c("Histogram of missing data for Carp nodes","Pattern"))
+ 
+phyloplot <- ggplot(mega, aes(Phylum)) +
+  geom_bar()
+  phyloplot + coord_flip()
 
+        

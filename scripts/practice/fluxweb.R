@@ -102,7 +102,8 @@ feedingtype <- c("herbivory", "carnivory", "detritivory", "total")
 flux <- data.frame(fluxes, feedingtype)
 
 ggplot(flux, aes(x = feedingtype, y = log10(fluxes), fill = feedingtype)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") +
+  ggtitle("Fluxes through the Ythan Estuary")
 
 # uncertainties using sensitivity analysis of fluxes ----------------------
 
@@ -145,6 +146,6 @@ ggplot(flux, aes(x = feedingtype, y = log10(fluxes), fill = feedingtype)) +
 # }
 
 # web using fluxes as width -----------------------------------------------
-
-g <- graph_from_adjacency_matrix(sqrt(mat.fluxes))
-plot(g)
+# 
+# g <- graph_from_adjacency_matrix(sqrt(mat.fluxes))
+# plot(g)
