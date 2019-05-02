@@ -53,6 +53,22 @@ plot.vim <- aggr(bsq_new[,2:4], col=c('navyblue','red'),
      numbers=TRUE, sortVars=TRUE, labels=names(bsq_new[, 2:4]),
      cex.axis=.7, gap=3, ylab=c("Histogram of missing data for BSQ","Pattern of missing data for BSQ"))
 
+# phylo count plot
+plot.freq <- 
+  bsq %>%
+  # count factor levels and frequency
+  count(Phylum) %>% 
+  # rename blank factor varables to other
+  mutate(Phylum = fct_recode(Phylum, "Other" = "")) %>% 
+  # plot
+  ggplot(aes(x = reorder(Phylum, -n), y = n)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  ggtitle("Frequency plot of Phylum in BSQ") +
+  xlab("Phylum") +
+  ylab("Count") +
+  coord_flip()
+ggsave("plot.freq.pdf", plot.freq)  
+
 ## Does MCAR or MAR 
 # install.packages("BaylorEdPsych")
 library(BaylorEdPsych) # for littles test of MCAR 
