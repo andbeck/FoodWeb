@@ -1,6 +1,5 @@
 # Script for Parasite list
 library(tidyverse)
-library(missForest)
 library(VIM)
 
 # set enviro
@@ -32,7 +31,7 @@ mutate(BodySizeNew = case_when(!is.na(Abundance & Biomass) ~ Biomass / Abundance
       AbundanceNew = case_when(!is.na(BodySize & Biomass) ~ Biomass / BodySize),
 ## if Biomass = NA and BodySize & Abundance != NA then Biomass = Abundance * BodySize - else do nothing
       BiomassNew = case_when(!is.na(Abundance & BodySize) ~ Abundance * BodySize)) %>% 
-## join the columns of new and old together use coalesce -- Biomass + BiomassNew...
+## join the columns of new and old together use coalesce() -- Biomass + BiomassNew...
 ## this selects the original value first so only values that are missing from original dataset and then computed are selected  
 mutate(BodySize_Work = coalesce(BodySize, BodySizeNew),
        Biomass_Work = coalesce(Biomass, BiomassNew),
