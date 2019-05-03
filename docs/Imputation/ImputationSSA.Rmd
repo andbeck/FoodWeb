@@ -2,16 +2,15 @@
 title: "Imputation of Missing Body Sizes in Parasites"
 author: "Daniel Smith"
 date: "17 April 2019"
-output:
-  html_document:
-    df_print: paged
+output: word_document
 csl: TREE.csl
 bibliography: library.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,message=FALSE,results = "asis")
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,results = "asis", warning = FALSE)
 ```
+
 ## Intro
 
 ## Missing Data Structure
@@ -21,7 +20,7 @@ Before we move further with imputation of missing values it's important to under
 ### Visualising Missing Data for SSA
 
 Load the required packages.
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse) # general data wizadry and manipulation
 library(VIM) # visualise missing data patterns
 library(naniar) # data structure visualisation in a 'tidy' manner
@@ -105,7 +104,7 @@ Now it looks like we have 75\% of the data with no missing values for any of tha
 
 For imputation we have the choice of several packages in the CRAN repository. For now the most appropriate package is that of `mice` as shown by penone, without phylogenetic data this method provides the best impuation results, particularly for body size data and traits highly correlated to this. 
 
-```{r}
+```{r, warnings = FALSE, message=FALSE}
 library(mice) # R package for Multivariate Imputation using Chained Equations
 # Be aware that the MASS package attatched to mice masks the select() function by dplyr
 # It is therefore necessry to specifically call dplyr::select() to use this function
@@ -119,12 +118,16 @@ bsq_imp <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>%
   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
 ```
 
-
-```{r}
-
+Using the imputation function `mice()` we can now impute the missing data. the `m` value corresponds to the number of data sets imputed and for this example we will use 5 as it's easier to show, but for real analysis more appropriate iterations of imputation are suggested (50+). The data will be imputed using the `pmm` method whcih is short for predictive mean matching.
+```{r, results = FALSE}
 bsq_imp <- mice(bsq_imp, m = 5, method = "pmm")
-xyplot(bsq_imp, BodySize ~ Abundance + Biomass)
+```
+
+We can look at some of the imputed values and compare them to our original data set using some convenient functions provided in the `mice` package.
+```{r, dpi = 600}
 densityplot(bsq_imp, BodySize ~ Abundance + Biomass)
 stripplot(bsq_imp, pch = 20, cex = 1.2)
-bsq_imp <- complete(bsq_imp)
+
 ```
+
+bsq_imp <- complete(bsq_imp)
