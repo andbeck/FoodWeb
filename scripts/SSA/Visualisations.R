@@ -61,6 +61,8 @@ bsq_little[!is.na(bsq_little)] <- 1
 bsq_little[is.na(bsq_little)] <- 0
 LittleMCAR(bsq_little)
 
+library(rpart)
+library(rpart.plot)
 ## modelling missingness
 bsq_new %>% 
   add_prop_miss() %>% 
