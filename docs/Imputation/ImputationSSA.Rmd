@@ -2,13 +2,14 @@
 title: "Imputation of Missing Body Sizes in Parasites"
 author: "Daniel Smith"
 date: "17 April 2019"
-output: word_document
-csl: TREE.csl
-bibliography: library.bib
+output:
+  word_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,message=FALSE,results = "asis", warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE,message=FALSE, warning = FALSE, dpi = 600)
 ```
 
 ## Intro
@@ -20,7 +21,7 @@ Before we move further with imputation of missing values it's important to under
 ### Visualising Missing Data for SSA
 
 Load the required packages.
-```{r, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(tidyverse) # general data wizadry and manipulation
 library(VIM) # visualise missing data patterns
 library(naniar) # data structure visualisation in a 'tidy' manner
@@ -56,6 +57,9 @@ bsq_wrk <-
                 Biomass = Biomass.kg.ha., Abundance = Abundance.no..ha.) %>% 
   mutate(BodySize = BodySize / 1000) # change BodySize from g to Kg so that units are equal
 
+# take a look at the new dataset
+glimpse(bsq_wrk)
+
 ```
 
 Using the handy VIM package we can quickly visualise the missing data present in the original data set - in particular the trait values of the nodes are what we're interested in for now.
@@ -72,18 +76,18 @@ Using the equation $Biomass = BodySize * Abundance$ we can conditionally fill in
 ```{r}
 bsq_new <- 
   bsq_wrk %>% 
-  ## if BodySize = NA & if Biomass & Abundance != NA then BodySize = Biomass/Abundance
+  # if BodySize = NA & if Biomass & Abundance != NA then BodySize = Biomass/Abundance
   mutate(BodySizeNew = case_when(!is.na(Abundance & Biomass) ~ Biomass / Abundance),
-         ## if Abundance = NA and BodySize & Biomass != NA then Abundance = Biomass/BodySize 
+         # if Abundance = NA and BodySize & Biomass != NA then Abundance = Biomass/BodySize 
          AbundanceNew = case_when(!is.na(BodySize & Biomass) ~ Biomass / BodySize),
-         ## if Biomass = NA and BodySize & Abundance != NA then Biomass = Abundance * BodySize
+         # if Biomass = NA and BodySize & Abundance != NA then Biomass = Abundance * BodySize
          BiomassNew = case_when(!is.na(Abundance & BodySize) ~ Abundance * BodySize)) %>% 
-  ## join the columns of new and old together use coalesce -- Biomass + BiomassNew...
-  ## this selects the original value first so only values that are missing from original dataset and then computed are selected  
+  # join the columns of new and old together use coalesce -- Biomass + BiomassNew...
+  # this selects the original value first so only values that are missing from original dataset and then computed are selected  
   mutate(BodySize_Work = coalesce(BodySize, BodySizeNew),
          Biomass_Work = coalesce(Biomass, BiomassNew),
          Abundance_Work = coalesce(Abundance, AbundanceNew)) %>% 
-  ## now dplyr::select and rename the new working colums to replace the old incomplete data set
+  # now dplyr::select and rename the new working colums to replace the old incomplete data set
   dplyr::select(FunctionalGroup, BodySize = BodySize_Work,
                 Biomass = Biomass_Work, Abundance = Abundance_Work)
 ```
@@ -102,13 +106,15 @@ Now it looks like we have 75\% of the data with no missing values for any of tha
 
 ## Imputation
 
-For imputation we have the choice of several packages in the CRAN repository. For now the most appropriate package is that of `mice` as shown by penone, without phylogenetic data this method provides the best impuation results, particularly for body size data and traits highly correlated to this. 
+For imputation we have the choice of several packages in the CRAN repository. For now the most appropriate package is that of `mice` as shown by penone2014, without phylogenetic data this method provides the best imputation results, particularly for body size data and traits highly correlated to this. 
 
 ```{r, warnings = FALSE, message=FALSE}
 library(mice) # R package for Multivariate Imputation using Chained Equations
 # Be aware that the MASS package attatched to mice masks the select() function by dplyr
 # It is therefore necessry to specifically call dplyr::select() to use this function
 ```
+
+### Dealing with co-linearity
 
 Lets create a new data frame for the imputation process. It's important in the imputation process to log transform values that could be correlated with each otehr, this process reduces the co-linearity of the values and therefore makes imputation more accurate.
 ```{r}
@@ -118,16 +124,107 @@ bsq_imp <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>%
   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
 ```
 
-Using the imputation function `mice()` we can now impute the missing data. the `m` value corresponds to the number of data sets imputed and for this example we will use 5 as it's easier to show, but for real analysis more appropriate iterations of imputation are suggested (50+). The data will be imputed using the `pmm` method whcih is short for predictive mean matching.
-```{r, results = FALSE}
-bsq_imp <- mice(bsq_imp, m = 5, method = "pmm")
+### Setup of `mice()`
+
+The code below is standard setup and can be used for any imputation in `mice`, just change the dataset name. 
+```{r}
+init = mice(bsq_imp, maxit=0) 
+init # An overview of the mice object you just created using the code above and your dataset
 ```
+
+Before we run the imputation we want to check which values `mice` is using for the imputation, by default this is all the variables you provide it with, this may not be the best approach as we only need `BodySize` and `Abundance` variables for our future analysis, so using the `Biomass` variable as a predictor that won't be imputed but is still used in the imputation process is probably correct, but for this example we will continue with all variables being imputed and for imputation prediction but the example code of how to look at what `mice` is using will be shown below.
+
+```{r}
+meth = init$method
+init$method # The method used for the imputation of each variable
+```
+```{r}
+predM = init$predictorMatrix
+init$predictorMatrix # The prediction matrix for your imputed dataset
+```
+
+### `mice()` usage
+
+Using the imputation function `mice()` we can now impute the missing data. The `m` value corresponds to the number of data sets imputed and for this example we will use 10 as it's easier to show, but for real analysis more appropriate iterations of imputation are suggested (50+). The data will be imputed using the `pmm` method which is short for predictive mean matching. A list of methods for imputation using mice are listed below.
+```{r, results = FALSE}
+bsq_imp <- mice(bsq_imp, m = 10, 
+                method=meth, # using both the methods and predictor matrix we specified earlier
+                predictorMatrix=predM) # we didnt change any values in the predictor matrix so this isn't entirely necessary 
+
+```
+
+```{r}
+# the number of imputation methods are available by calling this command
+methods(mice)
+```
+
+### Visual analysis of imputed data
 
 We can look at some of the imputed values and compare them to our original data set using some convenient functions provided in the `mice` package.
-```{r, dpi = 600}
-densityplot(bsq_imp, BodySize ~ Abundance + Biomass)
-stripplot(bsq_imp, pch = 20, cex = 1.2)
 
+#### Density plots
+This density plot shows us the density of imputed values compared to our original input data (red and blue, respectively), assuming that `BodySize` is proportional to `Abundance` and `Biomass`.
+
+```{r, dpi = 600}
+densityplot(bsq_imp)
 ```
 
-bsq_imp <- complete(bsq_imp)
+#### Strip plots
+A strip plot here shows the imputed values of each value compared tothe original data set for each imputed data set (red and blue, respectively). It's much easier here to see the variance in each imputed data set. Dealing with this variance is important and we will be using some functions present in the mice package to coalesce all this data together, and then to test the significance of it compared to the original data.
+```{r, dpi = 600}
+stripplot(bsq_imp, pch = 20, cex = 1.2)
+```
+
+To complete the imputation process the `complete()` function does all the hard work for you, turning your mice object back into a data frame that contains all the imputed values inputted into it, giving you a complete data frame. There are various ways to complete this and even add multiple imputed data frames into one large data frame or a list.
+
+```{r}
+bsq_complete <- complete(bsq_imp, "all") # use the all the imputed data sets
+bsq_complete <- complete(bsq_imp, 1) # use the first imputed data set
+glimpse(bsq_complete)
+summary(bsq_complete)
+```
+
+## Alternative approaches and accuracy 
+
+There may be more appropriate methods of imputation that take adavantage of evolutionary models or phylogeneteic distances that allow constraining of imputed values depending upon the values of their closest evolutionary relatives that may have data already present or imputed. Phylogenetic data is incomplete for my datasets but the majority of data points have taxa at least to the phylum level and below. With the most speciose phyla compromising the majority of data points present.
+
+```{r}
+# phylogeny count plot
+plot.freq <- 
+  bsq %>%
+  # count factor levels and frequency
+  count(Phylum) %>% 
+  # rename blank factor varables to other
+  mutate(Phylum = fct_recode(Phylum, "Other" = "")) %>% 
+  # plot
+  ggplot(aes(x = reorder(Phylum, -n), y = n)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  ggtitle("Frequency plot of Phylum in BSQ") +
+  xlab("Phylum") +
+  ylab("Count") +
+  coord_flip()
+plot.freq
+```
+
+We can also visualise what levels of data are missing in relation to phylogenetic grouping using the `naniar` package and the `gg_miss_fct()` function that comes with this. It's also useful to see how data is missing with regards to the functional grouping of that taxa in the data set. Combining these two extra variables we can easily see that clades and phyla typically containing smaller animals are more likely to have missing data points.
+```{r}
+# several useful ways to visualise this missing data by functional and taxanomic grouping
+plot.missing.group <- 
+  gg_miss_fct(x = bsq_new, fct = FunctionalGroup) + 
+    labs(title = "% NA Values by Functional Group for BSQ")
+
+plot.missing.phylo <- 
+  bsq %>% 
+  dplyr::select(BodySize = BodySize.g., Biomass = Biomass.kg.ha., 
+                Abundance = Abundance.no..ha., Phylum) %>% 
+  gg_miss_fct(fct = Phylum) + 
+  labs(title = "% NA Values by Phylogeny Group for BSQ")
+```
+
+```{r, echo=FALSE, fig.height=7}
+library(gridExtra) # to align plots
+grid.arrange(plot.missing.group, plot.missing.phylo)
+```
+
+
+

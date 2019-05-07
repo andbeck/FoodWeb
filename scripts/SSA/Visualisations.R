@@ -42,6 +42,13 @@ plot.missing <-
   labs(title = "% NA Values by Functional Group for BSQ")
 ggsave("plot.missing.pdf", plot.missing)
 
+# missing by phylogenetic
+bsq %>% 
+  dplyr::select(BodySize = BodySize.g., Biomass = Biomass.kg.ha., 
+                Abundance = Abundance.no..ha., Phylum) %>% 
+  gg_miss_fct(fct = Phylum) + 
+  labs(title = "% NA Values by Phylogeny Group for BSQ")
+
 # overall data structure and missing values
 plot.vis <- 
   vis_dat(bsq_new) +
