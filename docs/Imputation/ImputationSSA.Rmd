@@ -118,9 +118,9 @@ library(mice) # R package for Multivariate Imputation using Chained Equations
 
 Lets create a new data frame for the imputation process. It's important in the imputation process to log transform values that could be correlated with each otehr, this process reduces the co-linearity of the values and therefore makes imputation more accurate.
 ```{r}
-bsq_imp <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>% 
-  ##  log transform the variables you want to impute, addition of 1 solves problems 
-  ##  with infinite results due to logging values below 0
+bsq_impute <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>% 
+  # log transform the variables you want to impute, addition of 1 solves problems 
+  #  with infinite results due to logging values below 0
   mutate(BodySize = log(BodySize + 1), Biomass = log(Biomass + 1), Abundance = log(Abundance + 1))
 ```
 
@@ -128,7 +128,7 @@ bsq_imp <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>%
 
 The code below is standard setup and can be used for any imputation in `mice`, just change the dataset name. 
 ```{r}
-init = mice(bsq_imp, maxit=0) 
+init = mice(bsq_impute, maxit=0) 
 init # An overview of the mice object you just created using the code above and your dataset
 ```
 
@@ -147,7 +147,7 @@ init$predictorMatrix # The prediction matrix for your imputed dataset
 
 Using the imputation function `mice()` we can now impute the missing data. The `m` value corresponds to the number of data sets imputed and for this example we will use 10 as it's easier to show, but for real analysis more appropriate iterations of imputation are suggested (50+). The data will be imputed using the `pmm` method which is short for predictive mean matching. A list of methods for imputation using mice are listed below.
 ```{r, results = FALSE}
-bsq_imp <- mice(bsq_imp, m = 10, 
+bsq_imputed <- mice(bsq_impute, m = 10, 
                 method=meth, # using both the methods and predictor matrix we specified earlier
                 predictorMatrix=predM) # we didnt change any values in the predictor matrix so this isn't entirely necessary 
 
@@ -166,23 +166,72 @@ We can look at some of the imputed values and compare them to our original data 
 This density plot shows us the density of imputed values compared to our original input data (red and blue, respectively), assuming that `BodySize` is proportional to `Abundance` and `Biomass`.
 
 ```{r, dpi = 600}
-densityplot(bsq_imp)
+densityplot(bsq_imputed)
 ```
 
 #### Strip plots
 A strip plot here shows the imputed values of each value compared tothe original data set for each imputed data set (red and blue, respectively). It's much easier here to see the variance in each imputed data set. Dealing with this variance is important and we will be using some functions present in the mice package to coalesce all this data together, and then to test the significance of it compared to the original data.
 ```{r, dpi = 600}
-stripplot(bsq_imp, pch = 20, cex = 1.2)
+stripplot(bsq_imputed, pch = 20, cex = 1.2)
 ```
 
 To complete the imputation process the `complete()` function does all the hard work for you, turning your mice object back into a data frame that contains all the imputed values inputted into it, giving you a complete data frame. There are various ways to complete this and even add multiple imputed data frames into one large data frame or a list.
 
 ```{r}
-bsq_complete <- complete(bsq_imp, "all") # use the all the imputed data sets
-bsq_complete <- complete(bsq_imp, 1) # use the first imputed data set
+bsq_complete <- complete(bsq_imputed, "all") # use the all the imputed data sets
+bsq_complete <- complete(bsq_imputed, 1) # use the first imputed data set
 glimpse(bsq_complete)
 summary(bsq_complete)
 ```
+
+The last step in this process is to return the values back to their original states so we can compare the values to the original input values we looked at in real terms, seeing if they make sense or not
+
+```{r}
+# Transform the data back into non-logarithmic form using the exponent function
+bsq_transformed <- 
+  bsq_complete %>% 
+  mutate(BodySizeTran = exp(BodySize - 1),
+         BiomassTran = exp(Biomass - 1),
+         AbundanceTran = exp(Abundance - 1))
+# the results of the mutation
+glimpse(bsq_transformed)
+
+# summary of descriptive statistics
+summary(bsq_transformed)
+
+```
+
+We can then add these new transformed and inputed values back into the original data set so we can compare side by side the new and old values, along with the additional data we were given such as species phylogeny and working names.
+
+```{r}
+bsq_compare <- # new data.frame to compare the values
+  bsq_wrk %>% # mutate this into log values so we can compare to the imputed
+  mutate(BodySize = log(BodySize + 1), 
+         Biomass = log(Biomass + 1), 
+         Abundance = log(Abundance + 1))
+
+bsq_compare <- # bind the new and old data together into one large dataset
+  bsq_complete %>% 
+  select(BodySizeImputed = BodySize,
+         AbundanceImputed = Abundance, 
+         BiomassImputed = Biomass) %>% 
+  bind_cols(bsq_compare) # binding function
+```
+
+We can compare the new and old values grouping by functional groups to test to see if the data is significantly different form one another, and visualise this using boxplots.
+
+```{r, results=T}
+
+# does the imputed data set's mean differ from the original data?
+t.test(bsq_compare$BodySizeImputed, bsq_compare$BodySize) # p = 0.6
+t.test(bsq_compare$AbundanceImputed, bsq_compare$Abundance) # p = 0.11
+t.test(bsq_compare$BiomassImputed, bsq_compare$Biomass) # p = 0.84
+
+# p values show that data does not significantly differ from the imputed values
+```
+
+The datasets do not differ in means, statistically significantly anyway.
+
 
 ## Alternative approaches and accuracy 
 
