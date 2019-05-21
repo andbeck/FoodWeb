@@ -7,12 +7,12 @@ library(igraph)
 library(cheddar)
 
 # need to laod the scripts that convert data files to cheddar graphs
-source(file = "scripts/CSM.R")
-source(file = "scripts/BSQ.R")
-source(file = "scripts/EPB.R")
+source(file = "scripts/practice/CSM.R")
+source(file = "scripts/practice/BSQ.R")
+source(file = "scripts/practice/EPB.R")
 
 # contains functions to delete isolate nodes and turn cheddar to igraph
-source(file = "scripts/ExportIgraph.R")
+source(file = "scripts/practoce/ExportIgraph.R")
 
 # igrpah objects of the cheddar graphs containing only complete cases
 CSM.ig <- ToIgraph(CSMlite)

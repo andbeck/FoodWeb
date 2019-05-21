@@ -3,9 +3,9 @@ title: "Imputation of Missing Body Sizes in Parasites"
 author: "Daniel Smith"
 date: "17 April 2019"
 output:
-  word_document: default
   html_document:
     df_print: paged
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -172,7 +172,7 @@ densityplot(bsq_imputed)
 #### Strip plots
 A strip plot here shows the imputed values of each value compared tothe original data set for each imputed data set (red and blue, respectively). It's much easier here to see the variance in each imputed data set. Dealing with this variance is important and we will be using some functions present in the mice package to coalesce all this data together, and then to test the significance of it compared to the original data.
 ```{r, dpi = 600}
-stripplot(bsq_imputed, pch = 20, cex = 1.2)
+stripplot(bsq_imputed, pch = 20, cex = 1.2, fig.width = 9)
 ```
 
 To complete the imputation process the `complete()` function does all the hard work for you, turning your mice object back into a data frame that contains all the imputed values inputted into it, giving you a complete data frame. There are various ways to complete this and even add multiple imputed data frames into one large data frame or a list.
@@ -201,7 +201,7 @@ summary(bsq_transformed)
 
 ```
 
-We can then add these new transformed and inputed values back into the original data set so we can compare side by side the new and old values, along with the additional data we were given such as species phylogeny and working names.
+We can then add these new transformed and inputed values back into the original data set so we can compare side by side the new and old values, along with the additional data we were given such as species functional group.
 
 ```{r}
 bsq_compare <- # new data.frame to compare the values
@@ -218,19 +218,39 @@ bsq_compare <- # bind the new and old data together into one large dataset
   bind_cols(bsq_compare) # binding function
 ```
 
-We can compare the new and old values grouping by functional groups to test to see if the data is significantly different form one another, and visualise this using boxplots.
+```{r, echo=FALSE}
+library(gridExtra)
+# density plot for non imputed predator traits
+densitystandard <- 
+  bsq_compare %>% 
+  filter(FunctionalGroup == "predator") %>% 
+  ggplot() +
+  geom_density(aes(x = BodySize), col = "red") +
+  geom_density(aes(x = Abundance), col = "green") +
+  geom_density(aes(x = Biomass), col = "blue") +
+   xlab("Values") +
+  ylab("Density") +
+  ggtitle("Density plots of trait data") +
+  coord_cartesian(ylim = c(0, 2)) +
+  theme_minimal()
 
-```{r, results=T}
+  
 
-# does the imputed data set's mean differ from the original data?
-t.test(bsq_compare$BodySizeImputed, bsq_compare$BodySize) # p = 0.6
-t.test(bsq_compare$AbundanceImputed, bsq_compare$Abundance) # p = 0.11
-t.test(bsq_compare$BiomassImputed, bsq_compare$Biomass) # p = 0.84
+# density plot for imputed predator traits
+imputeddensity <- 
+  bsq_compare %>% 
+  filter(FunctionalGroup == "predator") %>% 
+  ggplot() +
+  geom_density(aes(x = BodySizeImputed), col = "red") +
+  geom_density(aes(x = AbundanceImputed), col = "green") +
+  geom_density(aes(x = BiomassImputed), col = "blue") +
+  xlab("Values") +
+  ylab("Density") +
+  coord_cartesian(ylim = c(0, 2)) +
+  theme_minimal()
 
-# p values show that data does not significantly differ from the imputed values
+grid.arrange(densitystandard, imputeddensity)
 ```
-
-The datasets do not differ in means, statistically significantly anyway.
 
 
 ## Alternative approaches and accuracy 
@@ -256,6 +276,7 @@ plot.freq
 ```
 
 We can also visualise what levels of data are missing in relation to phylogenetic grouping using the `naniar` package and the `gg_miss_fct()` function that comes with this. It's also useful to see how data is missing with regards to the functional grouping of that taxa in the data set. Combining these two extra variables we can easily see that clades and phyla typically containing smaller animals are more likely to have missing data points.
+
 ```{r}
 # several useful ways to visualise this missing data by functional and taxanomic grouping
 plot.missing.group <- 

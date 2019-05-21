@@ -79,18 +79,26 @@ phylum <-
 
 # tnrs match to Open Tree of Life
 # species_match <- tnrs_match_names(as.character(species))
-genus_match <- tnrs_match_names(as.character(genus))
+# genus_match <- tnrs_match_names(as.character(genus))
 family_match <- tnrs_match_names(as.character(family))
+
+familyfilter_match <- family_match %>% 
+  filter(search_string != "trichodinidae")
+         
+  
+  
 order_match <- tnrs_match_names(as.character(order))
 phylum_match <- tnrs_match_names(as.character(phylum))
 
 # Getting the tree for taxa
 # sp_tree <- tol_induced_subtree(ott_ids = species_match$ott_id)
 # gen_tree <- tol_induced_subtree(ott_ids = genus_match$ott_id) # Can't find ott391774
-fam_tree <- tol_induced_subtree(ott_ids = family_match$ott_id)
+fam_tree <- tol_induced_subtree(ott_ids = familyfilter_match$ott_id)
 ord_tree <- tol_induced_subtree(ott_ids = order_match$ott_id)
 phy_tree <- tol_induced_subtree(ott_ids = phylum_match$ott_id)
 
+
+plot(fam_tree)
 plot(ord_tree)
 plot(phy_tree)
 
@@ -107,6 +115,10 @@ mono_id <- tnrs_match_names(mono_tree$tip.label)
 mono_tree <- tol_subtree(ott_id = ott_id(mono_id))
 plot(mono_tree, show.tip.label = T)
 
+# Bind these columns/matches together? ---------------------------------------------
+bound <- bind_rows(genfiltermatch, order_match, phylum_match, familyfilter_match)
+all <- plot(tol_induced_subtree(ott_ids = bound$ott_id), show.tip.label = T, cex = .5) # is this my whole tree?
+tiplabels()
 # Try to unite the columns ------------------------------------------------
 
 fam_gen <- 

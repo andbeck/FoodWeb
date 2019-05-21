@@ -1,6 +1,7 @@
 # Script for Parasite list
 library(tidyverse)
 library(VIM)
+library(gdata)
 
 # set enviro
 rm(list=ls())
@@ -18,10 +19,10 @@ bsq_wrk <-
            Kingdom:SpecificEpithet) %>% 
   mutate(BodySize = BodySize / 1000) # change BodySize from g to Kg
 
-## only 50% of data is complete for impute...
-bsq_plot <- aggr(bsq_wrk[,4:6], col=c('navyblue','red'), 
-                 numbers=TRUE, sortVars=TRUE, labels=names(bsq_wrk[, 4:6]), 
-                 cex.axis=.7, gap=3, ylab=c("Histogram of missing data for BSQ nodes original data","Pattern"))
+# ## only 50% of data is complete for impute...
+# bsq_plot <- aggr(bsq_wrk[,4:6], col=c('navyblue','red'), 
+#                  numbers=TRUE, sortVars=TRUE, labels=names(bsq_wrk[, 4:6]), 
+#                  cex.axis=.7, gap=3, ylab=c("Histogram of missing data for BSQ nodes original data","Pattern"))
 
 bsq_new <- 
   bsq_wrk %>% 
@@ -41,10 +42,10 @@ dplyr::select(WorkingName, FunctionalGroup, Resolution, BodySize = BodySize_Work
        Biomass = Biomass_Work, Abundance = Abundance_Work, 
        Kingdom:SpecificEpithet)
 
-## 75% of data is now complete for imputation...
-bsq_new_plot <- aggr(bsq_new[,4:6], col=c('navyblue','red'),
-                 numbers=TRUE, sortVars=TRUE, labels=names(bsq_new[, 4:6]),
-                 cex.axis=.7, gap=3, ylab=c("Histogram of missing data for BSQ nodes new data","Pattern"))
+# ## 75% of data is now complete for imputation...
+# bsq_new_plot <- aggr(bsq_new[,4:6], col=c('navyblue','red'),
+#                  numbers=TRUE, sortVars=TRUE, labels=names(bsq_new[, 4:6]),
+#                  cex.axis=.7, gap=3, ylab=c("Histogram of missing data for BSQ nodes new data","Pattern"))
 
 ###################
 
@@ -55,10 +56,10 @@ csm_wrk <-
          Kingdom:SpecificEpithet) %>% 
   mutate(BodySize = BodySize / 1000) # change BodySize from g to Kg
 
-## only 49% of data is complete for impute...
-csm_plot <- aggr(csm_wrk[,4:6], col=c('navyblue','red'), 
-                 numbers=TRUE, sortVars=TRUE, labels=names(csm_wrk[, 4:6]), 
-                 cex.axis=.7, gap=3, ylab=c("Histogram of missing data for CSM nodes original data","Pattern"))
+# ## only 49% of data is complete for impute...
+# csm_plot <- aggr(csm_wrk[,4:6], col=c('navyblue','red'), 
+#                  numbers=TRUE, sortVars=TRUE, labels=names(csm_wrk[, 4:6]), 
+#                  cex.axis=.7, gap=3, ylab=c("Histogram of missing data for CSM nodes original data","Pattern"))
 
 csm_new <- 
   csm_wrk %>% 
@@ -78,10 +79,10 @@ csm_new <-
          Biomass = Biomass_Work, Abundance = Abundance_Work, 
          Kingdom:SpecificEpithet)
 
-## 74% of data is now complete for imputation...
-csm_new_plot <- aggr(csm_new[,4:6], col=c('navyblue','red'),
-                     numbers=TRUE, sortVars=TRUE, labels=names(csm_new[, 4:6]),
-                     cex.axis=.7, gap=3, ylab=c("Histogram of missing data for CSM nodes new data","Pattern"))
+# ## 74% of data is now complete for imputation...
+# csm_new_plot <- aggr(csm_new[,4:6], col=c('navyblue','red'),
+#                      numbers=TRUE, sortVars=TRUE, labels=names(csm_new[, 4:6]),
+#                      cex.axis=.7, gap=3, ylab=c("Histogram of missing data for CSM nodes new data","Pattern"))
 
 ###################
 
@@ -92,10 +93,10 @@ epb_wrk <-
          Kingdom:SpecificEpithet) %>% 
   mutate(BodySize = BodySize / 1000) # change BodySize from g to Kg
 
-## only 50% of data is complete for impute...
-epb_plot <- aggr(epb_wrk[,4:6], col=c('navyblue','red'), 
-                 numbers=TRUE, sortVars=TRUE, labels=names(epb_wrk[, 4:6]), 
-                 cex.axis=.7, gap=3, ylab=c("Histogram of missing data for EPB nodes original data","Pattern"))
+# ## only 50% of data is complete for impute...
+# epb_plot <- aggr(epb_wrk[,4:6], col=c('navyblue','red'), 
+#                  numbers=TRUE, sortVars=TRUE, labels=names(epb_wrk[, 4:6]), 
+#                  cex.axis=.7, gap=3, ylab=c("Histogram of missing data for EPB nodes original data","Pattern"))
 
 epb_new <- 
   epb_wrk %>% 
@@ -116,10 +117,10 @@ epb_new <-
          Biomass = Biomass_Work, Abundance = Abundance_Work, 
          Kingdom:SpecificEpithet)
 
-## 75% of data is now complete for imputation...
-epb_new_plot <- aggr(epb_new[,4:6], col=c('navyblue','red'),
-                     numbers=TRUE, sortVars=TRUE, labels=names(epb_new[, 4:6]),
-                     cex.axis=.7, gap=3, ylab=c("Histogram of missing data for EPB nodes new data","Pattern"))
+# ## 75% of data is now complete for imputation...
+# epb_new_plot <- aggr(epb_new[,4:6], col=c('navyblue','red'),
+#                      numbers=TRUE, sortVars=TRUE, labels=names(epb_new[, 4:6]),
+#                      cex.axis=.7, gap=3, ylab=c("Histogram of missing data for EPB nodes new data","Pattern"))
 
 library(mice)
 ## non phylo imputation using logged values of imputeation variables to reduce colinearity

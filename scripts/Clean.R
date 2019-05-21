@@ -22,11 +22,6 @@ epb_links <- read.csv("data/interactionwebdb/Carpinteria/EPBweb_Links.csv")
 
 # 1) Nodes
 
-# drop na values
-bsq_na <- 
-  bsq_nodes %>% 
-  drop_na(Biomass.kg.ha., BodySize.g.)
-
 # select and rename useful columns from NA free file
 bsq_n <- 
   bsq_na %>% 
@@ -74,11 +69,6 @@ bsq_lfree <-
   dplyr::select(-NodeID) # again remove NodeID column
 
 ####### CSM... ######
-
-# 1) Nodes
-csm_na <- 
-  csm_nodes %>% 
-  drop_na(Biomass.kg.ha., BodySize.g.)
 
 csm_n <- 
   csm_na %>% 
@@ -128,9 +118,6 @@ csm_lfree <-
 ####### EPB... ######
 
 # 1) Nodes
-epb_na <- 
-  epb_nodes %>% 
-  drop_na(Biomass.kg.ha., BodySize.g.)
 
 epb_n <- 
   epb_na %>% 
