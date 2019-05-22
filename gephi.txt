@@ -1,0 +1,3 @@
+
+> write.gexf(nodes, edges)
+"x"

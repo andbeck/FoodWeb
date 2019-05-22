@@ -152,8 +152,19 @@ densityplot(bsq_imp, BodySize ~ Abundance + Biomass)
 stripplot(bsq_imp, pch = 20, cex = 1.2)
 bsq_imp <- complete(bsq_imp)
 
+# transform back
+epb_imp <- epb_new %>% dplyr::select(BodySize, Biomass, Abundance) %>% 
+  mutate(BodySize = exp(BodySize - 1), Biomass = exp(Biomass - 1), Abundance = exp(Abundance - 1))
+
+csm_imp <- csm_new %>% dplyr::select(BodySize, Biomass, Abundance) %>% 
+  mutate(BodySize = exp(BodySize - 1), Biomass = exp(Biomass - 1), Abundance = exp(Abundance - 1))
+
+bsq_imp <- bsq_new %>% dplyr::select(BodySize, Biomass, Abundance) %>% 
+  mutate(BodySize = exp(BodySize - 1), Biomass = exp(Biomass - 1), Abundance = exp(Abundance - 1))
 
 
+keep(bsq_imp, csm_imp, epb_imp,
+     bsq, csm, epb, sure = T)
 
 
 ## gplot functional space values
