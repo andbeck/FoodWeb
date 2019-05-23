@@ -87,7 +87,6 @@ properties
 # make the community
 CSM <- Community(nodes = nodes, trophic.links = trophic.links, properties = properties)
 
-PlotNPS(LumpTrophicSpecies(CSM),'Log10M','ChainAveragedTrophicLevel')
 PlotWebByLevel(CSM, highlight.links = ResourceLargerThanConsumer(CSM))
 tail(NPS(CSM, c('Log10MNBiomass', Deg='Degree', Top='IsTopLevelNode', TS='TrophicSpecies')))
 
