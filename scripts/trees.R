@@ -132,4 +132,37 @@ fam_gen_dat <- unique(fam_gen$TaxaSearch)
 fam_gen_dat <- fam_gen_dat[-1] # drop blank factor level
 
 fam_gen_match <- tnrs_match_names(as.character(fam_gen_dat))
+plot(tol_induced_subtree(ott_ids = fam_gen_match$ott_id), show.tip.label = T, cex = .5)
+# RPhylopars practice ----
 
+phylopars <- 
+  csm %>% 
+  select(BodySize = BodySize.g.,
+         Abundance = Abundance.no..ha.,
+         Biomass = Biomass.kg.ha.)
+
+phylopars_add <- 
+  select(dat, species = Phylum)
+
+phylopars_comp <- 
+  bind_cols(phylopars_add, phylopars)
+
+phylo_filtered <- 
+  phylopars_comp %>% 
+  filter(species != "")
+  
+library(Rphylopars)
+
+phy_tree$tip.label[1] <- "Foraminifera"
+phy_tree$tip.label[2] <- "Ciliophora"
+phy_tree$tip.label[3] <- "Apicomplexa"
+phy_tree$tip.label[4] <- "Mollusca"
+phy_tree$tip.label[5] <- "Nemertea"
+phy_tree$tip.label[6] <- "Platyhelminthes"
+phy_tree$tip.label[7] <- "Acanthocephala"
+phy_tree$tip.label[8] <- "Arthropoda"
+phy_tree$tip.label[9] <- "Nematoda"
+phy_tree$tip.label[10] <- "Chordata"
+phy_tree$tip.label[11] <- "Myxozoa"
+
+p_BM <- phylopars(trait_data = phylo_filtered,tree = phy_tree)

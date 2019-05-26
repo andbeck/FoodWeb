@@ -157,7 +157,7 @@ herbivory = sum(rowSums(mat.fluxes[plants,]))
 carnivory = sum(rowSums(mat.fluxes[!basal,]))
 
 # Detritivory
-detritivory = sum(rowSums(mat.fluxes[(mat.fluxes) == "21.1",]))
+detritivory = sum(rowSums(mat.fluxes[,]))
 #need a way to extract all fluxes that are detritus labelled SpeciesID's
 
 # -- Wrong shouldnt have to list all of them can we match to list?
@@ -176,3 +176,90 @@ ggplot(flux, aes(x = feedingtype, y = log(fluxes), fill = feedingtype)) +
   geom_bar(stat = "identity") +
   ggtitle("Fluxes through the CSM Subweb")
 
+rownames(mat.fluxes) <- org.type
+
+tibble.flixes <- 
+  as.tibble(mat.fluxes)
+
+rownames(tibble.flixes)
+
+values <- # summarise all fluxes by rowname
+  as.data.frame(t(rowsum(t(mat.fluxes), rownames(mat.fluxes))))
+
+values_tibble <- # put these new rownames into a column
+  rownames_to_column(values) %>% 
+  select(group = rowname) %>% 
+  cbind(values)
+
+values_tibble$group <- # remove all digits and punctuation
+  values_tibble$group %>% 
+  str_replace_all("[[:digit:]]", "") %>% 
+  str_replace_all("[[:punct:]]", "") 
+
+# remove old row names
+rownames(values_tibble) <- NULL
+
+# summarise the values?
+summary <- 
+  values_tibble %>% 
+  group_by(group) %>% 
+  summarise(Animal = sum(animal),
+            Detritus = sum(detritus),
+            Parasite = sum(para),
+            Plant = sum(plant))
+summary %>% 
+  ggplot(aes(y = log(Animal), x = group, fill = group)) +
+  geom_col()
+
+# make tidy data from summary ---
+# From | To | Energy
+
+gather(summary, "Animal", "Detritus", key = )
+
+expand(summary, c(Animal, Parasite, Detritus, Plant), group)
+
+# try using data.frame.table
+
+values_tidy <- 
+  values <- # summarise all fluxes by rowname
+  as.data.frame.table(t(rowsum(t(mat.fluxes), rownames(mat.fluxes)))) %>% 
+  rename(From = Var1, # rename to too and from variables
+         To = Var2)
+
+# collates them too much so animal - detritus is equivalent to detritus - animal. Not the case!
+# Igraph a good way to show this?
+
+summary_tidy <- 
+  values_tidy %>% 
+  rename(Consumer = To,
+         Resource = From) %>% 
+  group_by(Consumer, Resource) %>% 
+  summarise(Energy = sum(Freq))
+
+summary_tidy %>% 
+  ggplot(aes(y = log(Energy), x = Resource, fill = Consumer)) +
+  geom_col() +
+  ggtitle("Energy Flux in CSM")
+
+
+summary_ig <- 
+  values_tidy %>% 
+  rename(Consumer = To,
+         Resource = From) %>% # rename for igraph
+  group_by(Consumer, Resource) %>% # condense rows to unique combinations of nodes
+  summarise(Energy = sum(Freq)) %>% # summarise values
+  filter(Energy != 0) %>% # no links with values = 0
+  mutate(Energy = log(Energy)) %>% # log values for edge widths
+  select(Resource, Consumer, Energy) # change order of columns
+
+csm_sum_g <- 
+  graph_from_data_frame(summary_ig, directed = TRUE)
+
+E(csm_sum_g)$weight <- E(csm_sum_g)$Energy
+
+layout <- layout_on_grid(csm_sum_g)
+plot(simplify(csm_sum_g, remove.loops = T), 
+     edge.width = E(csm_sum_g)$Energy / 3, 
+     edge.curved = .7, 
+     vertex.size = degree(csm_sum_g) * 5,
+     layout = layout)
