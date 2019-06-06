@@ -24,7 +24,8 @@ nodes_imputation <-
          Phylum,
          Class,
          Order,
-         OrganismalGroup) %>% 
+         OrganismalGroup,
+         ConsumerType = ConsumerStrategy.stage.) %>% 
   mutate(M = M / 1000) %>% 
   missForest()
 
@@ -43,11 +44,60 @@ nodes_wrk <-
          N,
          M,
          ConsumerType = ConsumerStrategy.stage.,
-         OrganismalGroup) %>%
+         OrganismalGroup,
+         Phylum) %>%
   mutate(WorkingName = make.unique(as.character(WorkingName), sep = "_"))
 
-# limit low values to 0.01
-nodes_wrk$N[nodes_wrk$N == 0] <- 0.01
+# vis
+nodes_wrk$Organismalgroup <- fct_recode(nodes_wrk$OrganismalGroup,
+           # plants
+           plant = "vascular plant",
+           plant = "microphytobenthos",
+           plant = "macroalgae",
+           # animals
+           animal = "protist",
+           animal = "annelid",
+           animal = "leech",
+           animal = "nemertean",
+           animal = "bivalve",
+           animal = "snail",
+           animal = "mosquito",
+           animal = "branchiuran",
+           animal = "amphipod",
+           animal = "copepod",
+           animal = "dipteran",
+           animal = "isopod",
+           animal = "ostracod",
+           animal = "spider",
+           animal = "water boatman",
+           animal = "burrowing shrimp",
+           animal = "crab",
+           animal = "fish",
+           animal = "elasmobranch",
+           animal = "bird",
+           animal = "mammal",
+           animal = "myxozoan",
+           animal = "monogenean",
+           para = "trematode",
+           animal = "cestode",
+           animal = "nematode",
+           animal = "acanthocephalan",
+           # animal = "anthozoan",
+           # animal = "holothurian",
+           # animal = "phoronid",
+           # animal = "turbellarian",
+           # virus? - should probabaly remove this just label as detritus for now,
+           detritus = "virus")
+
+nodes_wrk %>% 
+  ggplot(aes(x = log(M), y = log(N), group = Organismalgroup, col = Organismalgroup)) +
+  geom_smooth(method = lm, se = FALSE)
+
+
+# limit low values to lowest other values present
+nodes_wrk$N[nodes_wrk$N == 0] <- min(nodes_wrk$N)
+nodes_wrk$M[nodes_wrk$M == 0] <- min(nodes_wrk$M)
+
 
 # rename species stage Id to not include decimals ---- Works when creating edgelist
 as.factor(nodes_CSM$SpeciesID.StageID) # as factor may work?
@@ -118,6 +168,7 @@ org.type <-
              # virus? - should probabaly remove this just label as detritus for now,
              detritus = "virus")
 
+
 # 5. a vector of the metabolic types
 met.types = c("Ectothermic vertebrates", "Endothermic vertebrates", "Invertebrates")
 
@@ -144,122 +195,78 @@ efficiencies[org.type == "para"] <- 0.906
 library(fluxweb)
 mat.fluxes <- fluxing(mat, biomasses, losses, efficiencies)
 
+met.rates = 0.71 * bodymasses ^ -0.25
+mat.fluxes2 <- fluxing(mat, biomasses, met.rates, efficiencies)
+
 # Basal Species
 basal = colSums(mat.fluxes) == 0
 
 # Plants
 plants = basal
 
-# Herbivory
-herbivory = sum(rowSums(mat.fluxes[plants,]))
+# Herbivory -- should be true
+Herbivory = sum(rowSums(mat.fluxes[plants,]))
 
-# Carnivory 
-carnivory = sum(rowSums(mat.fluxes[!basal,]))
+# Carnivory -- wrong becase this includes carnivores and detritivores
+Carnivory = sum(rowSums(mat.fluxes[org.type == "animal" ,]))
 
-# Detritivory
-detritivory = sum(rowSums(mat.fluxes[,]))
-#need a way to extract all fluxes that are detritus labelled SpeciesID's
+# Detritivory -- need a way to identify detritivores
+Detritivory = sum(rowSums(mat.fluxes[org.type == "detritus",]))
 
-# -- Wrong shouldnt have to list all of them can we match to list?
-# mapping may work here? need to get parasites out of matrix depending upon name
-# parasitism = sum(mat.fluxes[names == list of parasite StageIDs])
-# do this as a tibble or DF instead? Probably best
+# Parasitism
+Parasitism = sum(rowSums(mat.fluxes[org.type == "para",]))
 
 # Total
-total = sum(mat.fluxes)
+Total = sum(mat.fluxes)
 
-fluxes <- c(herbivory, carnivory, detritivory, total)
-feedingtype <- c("herbivory", "carnivory", "detritivory", "total")
+fluxes <- c(Herbivory, Carnivory, Detritivory, Parasitism, Total)
+feedingtype <- c("Herbivory", "Carnivory", "Detritivory", "Parasitsm", "Total")
 flux <- data.frame(fluxes, feedingtype)
 
-ggplot(flux, aes(x = feedingtype, y = log(fluxes), fill = feedingtype)) +
+p1 <- 
+  ggplot(flux, aes(x = reorder(feedingtype, fluxes), y = fluxes)) +
   geom_bar(stat = "identity") +
-  ggtitle("Fluxes through the CSM Subweb")
+  ggtitle("Fluxes through the CSM Subweb") +
+  xlab("Feeding Type") +
+  ylab("Energy J.yr^-1") +
+  theme(plot.title = element_text(hjust = 0.5))
+p1
 
-rownames(mat.fluxes) <- org.type
+# Sum using consumer strategy stages instead?
+consumer.type <-  pull(nodes_wrk, ConsumerType)
+unique(consumer.type)
 
-tibble.fluxes <- 
-  as.tibble(mat.fluxes)
+Autotrophs = sum(rowSums(mat.fluxes[consumer.type == "autotroph",]))
+Predators = sum(rowSums(mat.fluxes[consumer.type == "predator" ,]))
+MicroPred = sum(rowSums(mat.fluxes[consumer.type == "micropredator",]))
+Detritivores = sum(rowSums(mat.fluxes[consumer.type == "detritivore",]))
+MacroParasites = sum(rowSums(mat.fluxes[consumer.type == "macroparasite",]))
+NonFeeding = sum(rowSums(mat.fluxes[consumer.type == "nonfeeding",]))
+ParaCastrators = sum(rowSums(mat.fluxes[consumer.type == "parasitic castrator",]))
+TTPara = sum(rowSums(mat.fluxes[consumer.type == "trophically transmitted parasite",]))
 
-rownames(tibble.fluxes)
+# Total
+Total = sum(mat.fluxes)
 
-values <- # summarise all fluxes by rowname
-  as.data.frame(t(rowsum(t(mat.fluxes), rownames(mat.fluxes))))
+fluxes.group <- c(Autotrophs, Predators, MicroPred, Detritivores, MacroParasites, 
+            NonFeeding, ParaCastrators, TTPara, 
+            Total)
+org.group <- c("Autotrophs", "Predators", "MicroPred", "Detritivores", "MacroParasites", 
+                 "NonFeeding", "ParaCastrators", "TTPara",
+                 "Total")
+flux.group <- data.frame(fluxes.group, org.group)
 
-values_tibble <- # put these new rownames into a column
-  rownames_to_column(values) %>% 
-  select(group = rowname) %>% 
-  cbind(values)
+p2 <- 
+  ggplot(flux.group, aes(x = reorder(org.group, fluxes.group), y = log(fluxes.group))) +
+  geom_bar(stat = "identity") +
+  xlab("Organism Group") +
+  ylab(expression(log("Energy J.yr^-1"))) +
+  labs(caption = "Values all depend on imputation...") +
+  theme(plot.title = element_text(hjust = 0.5))
+ p2 # honestly cant be right... predators almost double the flux of herbivores
 
-values_tibble$group <- # remove all digits and punctuation
-  values_tibble$group %>% 
-  str_replace_all("[[:digit:]]", "") %>% 
-  str_replace_all("[[:punct:]]", "") 
+ 
+library(gridExtra)
+grid.arrange(p1 + theme_classic(),
+             p2 + theme_classic()) 
 
-# remove old row names
-rownames(values_tibble) <- NULL
-
-# summarise the values?
-summary <- 
-  values_tibble %>% 
-  group_by(group) %>% 
-  summarise(Animal = sum(animal),
-            Detritus = sum(detritus),
-            Parasite = sum(para),
-            Plant = sum(plant))
-summary %>% 
-  ggplot(aes(y = log(Animal), x = group, fill = group)) +
-  geom_col()
-
-# make tidy data from summary ---
-# From | To | Energy
-
-gather(summary, "Animal", "Detritus", key = )
-
-expand(summary, c(Animal, Parasite, Detritus, Plant), group)
-
-# try using data.frame.table
-
-values_tidy <- 
-  values <- # summarise all fluxes by rowname
-  as.data.frame.table(t(rowsum(t(mat.fluxes), rownames(mat.fluxes)))) %>% 
-  rename(From = Var1, # rename to too and from variables
-         To = Var2)
-
-# collates them too much so animal - detritus is equivalent to detritus - animal. Not the case!
-# Igraph a good way to show this?
-
-summary_tidy <- 
-  values_tidy %>% 
-  rename(Consumer = To,
-         Resource = From) %>% 
-  group_by(Consumer, Resource) %>% 
-  summarise(Energy = sum(Freq))
-
-summary_tidy %>% 
-  ggplot(aes(y = log(Energy), x = Resource, fill = Consumer)) +
-  geom_col() +
-  ggtitle("Energy Flux in CSM")
-
-
-summary_ig <- 
-  values_tidy %>% 
-  rename(Consumer = To,
-         Resource = From) %>% # rename for igraph
-  group_by(Consumer, Resource) %>% # condense rows to unique combinations of nodes
-  summarise(Energy = sum(Freq)) %>% # summarise values
-  filter(Energy != 0) %>% # no links with values = 0
-  mutate(Energy = log(Energy)) %>% # log values for edge widths
-  select(Resource, Consumer, Energy) # change order of columns
-
-csm_sum_g <- 
-  graph_from_data_frame(summary_ig, directed = TRUE)
-
-E(csm_sum_g)$weight <- E(csm_sum_g)$Energy
-
-layout <- layout_on_grid(csm_sum_g)
-plot(simplify(csm_sum_g, remove.loops = T), 
-     edge.width = E(csm_sum_g)$Energy / 3, 
-     edge.curved = .7, 
-     vertex.size = degree(csm_sum_g) * 5,
-     layout = layout)
