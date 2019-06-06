@@ -116,7 +116,7 @@ pool(fit)
 imp.complete <- 
   complete(imp)
 
-xyplot(imp, LogAbundance ~ LogBodySize + LogBiomass)
+xyplot(imp, LogAbundance ~ LogBodySize)
 
 
 
