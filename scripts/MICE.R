@@ -54,7 +54,8 @@ work %>%
 ### Imputation - With unlogged data
 dat <- 
   work %>% 
-  select(LogBodySize, LogBiomass, LogAbundance) 
+  select(BodySize, Abundance, Biomass,
+         LogBodySize, LogBiomass, LogAbundance) 
 
 summary(dat)
 
@@ -80,24 +81,25 @@ fluxplot(work)
 # meth["LogAbundance"] <- "~log(Abundance)"
 
 # dont impute non-transformed variables but use them as predictors
-# meth["BodySize"] <- "pmm"
-# meth["Biomass"] <- "pmm"
-# meth["Abundance"] <- "pmm"
+meth["BodySize"] <- ""
+meth["Biomass"] <- ""
+meth["Abundance"] <- ""
+
 
 # keeping relationships
-meth["LogBiomass"] <- "~I(LogBodySize * LogAbundance)"
-# meth["LogBodySize"] <- "~I(LogBiomass / LogAbundance)"
+# meth["LogBiomass"] <- "~I(LogBodySize * LogAbundance)"
+meth["LogBodySize"] <- "~I(LogBiomass / LogAbundance)"
 # meth["LogAbundance"] <- "~I(LogBiomass * LogBodySize)"
 
 # predictor matrix
-# pred["BodySize", "LogBodySize"] <- 0
-# pred["Biomass", "LogBiomass"] <- 0
-# pred["Abundance", "LogAbundance"] <- 0
+pred["BodySize", "LogBodySize"] <- 0
+pred["Biomass", "LogBiomass"] <- 0
+pred["Abundance", "LogAbundance"] <- 0
 
 ### Passive imputation
-# meth["Biomass"] <- "~I(BodySize * Abundance)"
-# meth["BodySize"] <- "~I(Biomass / Abundance)"
-# meth["Abundance"] <- "~I(Biomass * BodySize)"
+meth["Biomass"] <- "~I(BodySize * Abundance)"
+meth["BodySize"] <- "~I(Biomass / Abundance)"
+meth["Abundance"] <- "~I(Biomass * BodySize)"
 
 
 # impute
@@ -116,8 +118,10 @@ pool(fit)
 imp.complete <- 
   complete(imp)
 
+imp.complete$LogAbundance * imp.complete$LogBodySize == imp.complete$LogBiomass
+
 # png("RelationshipsImp.png", width = 7, height = 5, res = 300, units = "in")
-xyplot(imp, LogAbundance ~ LogBodySize, cex = 2, pch = 20)
+xyplot(imp, LogBiomass ~ LogBodySize, cex = 2, pch = 20)
 # dev.off()
 
 
