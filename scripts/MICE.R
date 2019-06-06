@@ -44,21 +44,17 @@ work <-
          # Only log values above 0 otherwise leads to inf values
          LogAbundance = case_when(Abundance > 0 ~ log(Abundance)))
 
+      
 ### Visualise and prep for imputation
 work %>% 
   ggplot(aes(x = LogBodySize, y = LogAbundance)) +
   geom_point() +
   geom_smooth(method = lm, se = FALSE)
 
-lm1 <- lm(LogBodySize ~ Phylum, data = work)
-summary(lm1)
-
-
 ### Imputation - With unlogged data
 dat <- 
   work %>% 
-  select(BodySize, Biomass, Abundance,
-         LogBodySize, LogBiomass, LogAbundance) 
+  select(LogBodySize, LogBiomass, LogAbundance) 
 
 summary(dat)
 
@@ -67,10 +63,9 @@ ini <- # initialise imputation with 0 iterations
 
 meth <- 
   ini$method
-
-pred <- 
-  dat %>%
-  quickpred()
+pred <-
+  # ini$predictorMatrix
+  quickpred(dat)
 
 # highlights potentially good predictors
 fluxplot(work)
@@ -80,19 +75,24 @@ fluxplot(work)
 
 # methods --
 # relationships between transformed variables
-meth["LogBodySize"] <- "~log(BodySize)"
-meth["LogBiomass"] <- "~log(Biomass)"
-meth["LogAbundance"] <- "~log(Abundance)"
-# dont impute non-transformed variables but use them as predictors
-meth["BodySize"] <- "pmm"
-meth["Biomass"] <- "pmm"
-meth["Abundance"] <- "pmm"
+# meth["LogBodySize"] <- "~log(BodySize)"
+# meth["LogBiomass"] <- "~log(Biomass)"
+# meth["LogAbundance"] <- "~log(Abundance)"
 
+# dont impute non-transformed variables but use them as predictors
+# meth["BodySize"] <- "pmm"
+# meth["Biomass"] <- "pmm"
+# meth["Abundance"] <- "pmm"
+
+# keeping relationships
+meth["LogBiomass"] <- "~I(LogBodySize * LogAbundance)"
+# meth["LogBodySize"] <- "~I(LogBiomass / LogAbundance)"
+# meth["LogAbundance"] <- "~I(LogBiomass * LogBodySize)"
 
 # predictor matrix
-pred["BodySize", "LogBodySize"] <- 0
-pred["Biomass", "LogBiomass"] <- 0
-pred["Abundance", "LogAbundance"] <- 0
+# pred["BodySize", "LogBodySize"] <- 0
+# pred["Biomass", "LogBiomass"] <- 0
+# pred["Abundance", "LogAbundance"] <- 0
 
 ### Passive imputation
 # meth["Biomass"] <- "~I(BodySize * Abundance)"
@@ -109,21 +109,34 @@ densityplot(imp)
 plot(imp)
 
 ### Pool
-fit <- with(imp, lm(BodySize ~ Abundance * Biomass))
+fit <- with(imp, lm(LogBiomass ~ LogBodySize + LogAbundance))
 pool(fit)
 
 ### Complete
 imp.complete <- 
   complete(imp)
 
-xyplot(imp, LogAbundance ~ LogBodySize + LogBiomass)
-
+# png("RelationshipsImp.png", width = 7, height = 5, res = 300, units = "in")
+xyplot(imp, LogAbundance ~ LogBodySize, cex = 2, pch = 20)
+# dev.off()
 
 
 ### compare vis
-ggplot(work) +
-  geom_point(aes(x = LogBodySize, y = LogAbundance), col = "red") +
-  geom_point(data = imp.complete, aes(x = LogBodySize, y = LogAbundance), col = "blue")
+imp.gg <-
+  imp.complete %>% 
+  filter_all(all_vars(!is.infinite(.)))
+
+work %>% 
+  select(LogBodySize, LogAbundance) %>% 
+  filter(LogBodySize != 0,
+         LogAbundance != 0) %>% 
+  drop_na() %>% 
+ggplot(aes(x = LogBodySize, y = LogAbundance)) +
+  geom_point(aes(x = LogBodySize, y = LogAbundance, col = "blue")) +
+  geom_point(data = imp.gg, aes(x = LogBodySize, y = LogAbundance, col = "red")) +
+  geom_jitter()
+
+ggsave("Relationship.png", plot = last_plot(), dpi = 300)
 
 summary(imp.complete)  
 summary(work)
