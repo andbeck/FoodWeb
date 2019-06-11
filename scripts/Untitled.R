@@ -80,14 +80,22 @@ meth["LogBiomass"] <- "~I(LogBodySize + LogAbundance)" # addition of logs is the
 pred[c("LogBodySize", "LogAbundance"), "LogBiomass"] <-  0
 
 ### Impute
-imp <- mice(dat, meth = meth, predictorMatrix = pred, printFlag = FALSE, m = 20, maxit = 100)
+imp <- mice(dat, meth = meth, predictorMatrix = pred, printFlag = FALSE, m = 100)
 complete <- complete(imp)
+all_imputed <- complete(imp, action = "broad")
+
+### Fitted model
+fit1 <- with(data = imp, exp = lm(LogBodySize ~ LogAbundance))
+summary(fit1)
+pool.fit1 <- pool(fit1)
+summary(pool.fit1)
+
 
 ### Check
 densityplot(imp, layout = c(3,1)) # densities look good
 stripplot(imp) # distribution looks good
 bwplot(imp) # bw plot looks within original data range
-xyplot(imp, LogBodySize ~ LogAbundance| as.factor(.imp), type = c("p", "r"), pch = c(1, 20)) # respects allometry
+xyplot(imp, LogBodySize ~ LogAbundance | as.factor(.imp), type = c("p", "r"), pch = c(1, 20)) # respects allometry
 plot(imp) # good convergance
 
 ### Add completed data
