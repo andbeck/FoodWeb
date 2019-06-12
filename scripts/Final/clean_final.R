@@ -24,7 +24,8 @@ bsq_nodes <-
 c_nodes_wrk <- 
   csm_nodes %>% 
   # rename values and sort out SI units
-  mutate(body_size_kg = body_size_g / 1000) %>% 
+  mutate(body_size_kg = body_size_g / 1000,
+         working_name = make.unique(working_name, sep = "_")) %>% 
   # select the useful columns
   select(system,
          node_id,
@@ -47,7 +48,8 @@ c_nodes_wrk <-
 e_nodes_wrk <- 
   epb_nodes %>% 
   # rename values and sort out SI units
-  mutate(body_size_kg = body_size_g / 1000) %>% 
+  mutate(body_size_kg = body_size_g / 1000,
+         working_name = make.unique(working_name, sep = "_")) %>% 
   # select the useful columns
   select(system,
          node_id,
@@ -70,7 +72,8 @@ e_nodes_wrk <-
 b_nodes_wrk <- 
   bsq_nodes %>% 
   # rename values and sort out SI units
-  mutate(body_size_kg = body_size_g / 1000) %>% 
+  mutate(body_size_kg = body_size_g / 1000,
+         working_name = make.unique(working_name, sep = "_")) %>% 
   # select the useful columns
   select(system,
          node_id,
