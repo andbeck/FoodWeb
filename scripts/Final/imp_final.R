@@ -120,8 +120,22 @@ b_list_mutate <- map(b_list_bound, mutate,
 
 b_list_select <- map(b_list_mutate, select, df_nameswant)
 
+
+### compact way for future
+
+test <- 
+  b_list %>% 
+  map(cbind, b_nodes_fill) %>% 
+  map(mutate,
+      # name the mutate variables
+      body_size = exp(log_body_size), 
+      abundance = exp(log_abundance)) %>%
+  map(select, df_nameswant)
+
 # keep --------------------------------------------------------------------
 
 gdata::keep(c_list_select, e_list_select, b_list_select, # complete list of 50 data sets combined
             c_links_wrk, e_links_wrk, b_links_wrk, # links needed for matrix
             sure = TRUE)
+
+
