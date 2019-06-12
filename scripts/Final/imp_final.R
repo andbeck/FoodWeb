@@ -138,4 +138,6 @@ gdata::keep(c_list_select, e_list_select, b_list_select, # complete list of 50 d
             c_links_wrk, e_links_wrk, b_links_wrk, # links needed for matrix
             sure = TRUE)
 
+save.image("data/workspace_data.RDS")
+
 
