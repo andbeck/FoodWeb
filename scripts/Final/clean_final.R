@@ -41,7 +41,8 @@ c_nodes_wrk <-
          biomass_kg_ha) %>% 
   # filter out pathogenic nodes
   filter(consumer_strategy_stage != "pathogen",
-         consumer_strategy_stage != "parasitoid") %>% 
+         consumer_strategy_stage != "parasitoid",
+         working_name != "roots") %>% # isolated node - useless 
   # change characters to lower
   mutate_if(is.character, str_to_lower)
 
@@ -65,7 +66,8 @@ e_nodes_wrk <-
          biomass_kg_ha) %>% 
   # filter out pathogenic and parasitoid nodes
   filter(consumer_strategy_stage != "pathogen",
-         consumer_strategy_stage != "parasitoid") %>% 
+         consumer_strategy_stage != "parasitoid",
+         working_name != "roots") %>% # isolated node - useless
   # change characters to lower
   mutate_if(is.character, str_to_lower)
 
@@ -89,7 +91,8 @@ b_nodes_wrk <-
          biomass_kg_ha) %>% 
   # filter out pathogenic and parasitoid nodes
   filter(consumer_strategy_stage != "pathogen",
-         consumer_strategy_stage != "parasitoid") %>% 
+         consumer_strategy_stage != "parasitoid",
+         working_name != "roots") %>% # isolated node - useless
   # change characters to lower
   mutate_if(is.character, str_to_lower)
 
@@ -157,7 +160,8 @@ filtered_links <-
     # rows cut in csm
   filter(c_nodes_wrk,
          consumer_strategy_stage != "pathogen",
-         consumer_strategy_stage != "parasitoid"),
+         consumer_strategy_stage != "parasitoid",
+         ),
     # rows cut in epb
   filter(e_nodes_wrk,
          consumer_strategy_stage != "pathogen",
@@ -191,22 +195,40 @@ bsq_links <-
 # filter the links
 c_links_wrk <- 
   csm_links %>% 
-  filter(consumer_species_id_stage_id %in% species_id_filter)
+  filter(consumer_species_id_stage_id %in% species_id_filter,
+         resource_species_id_stage_id %in% species_id_filter) %>% 
+  filter(link_type != "pathogen infection") %>% 
+  # get rid of roots node
+  filter(consumer_species_id_stage_id != 13.1,
+         resource_species_id_stage_id != 13.1)
 
 e_links_wrk <- 
   epb_links %>% 
-  filter(consumer_species_id_stage_id %in% species_id_filter)
+  filter(consumer_species_id_stage_id %in% species_id_filter,
+         resource_species_id_stage_id %in% species_id_filter) %>% 
+  filter(link_type != "pathogen infection") %>% 
+  # get rid of roots node
+  filter(consumer_species_id_stage_id != 13.1,
+         resource_species_id_stage_id != 13.1)
 
 b_links_wrk <- 
   bsq_links %>% 
-  filter(consumer_species_id_stage_id %in% species_id_filter)
+  filter(consumer_species_id_stage_id %in% species_id_filter,
+         resource_species_id_stage_id %in% species_id_filter) %>% 
+  filter(link_type != "pathogen infection") %>%
+  # get rid of roots node
+  filter(consumer_species_id_stage_id != 13.1,
+         resource_species_id_stage_id != 13.1)
 
 
 # - -----------------------------------------------------------------------
-
 
 gdata::keep(c_nodes_fill, e_nodes_fill, b_nodes_fill,
             c_links_wrk, e_links_wrk, b_links_wrk,
             sure = TRUE)
 
-  
+
+
+
+
+
