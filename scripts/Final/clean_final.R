@@ -160,7 +160,7 @@ filtered_links <-
     # rows cut in csm
   filter(c_nodes_wrk,
          consumer_strategy_stage != "pathogen",
-         consumer_strategy_stage != "parasitoid",
+         consumer_strategy_stage != "parasitoid"
          ),
     # rows cut in epb
   filter(e_nodes_wrk,
