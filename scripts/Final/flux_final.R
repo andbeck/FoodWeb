@@ -1,22 +1,11 @@
----
-title: "R Notebook"
-output: html_notebook
----
-
-```{r}
 library(tidyverse)
-library(ggforce)
 library(igraph)
 library(fluxweb)
-library(cheddar)
-library(ggfortify)
-library(missForest)
 library(mice)
 library(janitor)
 
-```
+# load --------------------------------------------------------------------
 
-```{r}
 nodes_bsq <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_Nodes.csv") %>% 
   clean_names()
 links_bsq <- read.csv("./data/interactionwebdb/Carpinteria/BSQweb_Links.csv") %>% 
@@ -32,18 +21,16 @@ nodes_epb <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_Nodes.csv") %>
 links_epb <- read.csv("./data/interactionwebdb/Carpinteria/EPBweb_Links.csv") %>% 
   clean_names()
 
-```
+# list --------------------------------------------------------------------
 
-```{r}
 nodes <- 
   list(nodes_bsq, nodes_csm, nodes_epb)
 
 links <- 
   list(links_bsq, links_csm, links_epb)
 
-```
+# clean -------------------------------------------------------------------
 
-```{r}
 foo <-
   nodes %>%
   bind_rows() %>% 
@@ -60,6 +47,8 @@ foo <-
          node_id) %>% 
   mutate(M = M / 1000)
 
+# impute prep -------------------------------------------------------------
+
 impute_me <- 
   foo %>% 
   mutate(logM = log(M),
@@ -69,9 +58,9 @@ impute_me <-
   group_split() %>% 
   lapply(select, -system)
 
-```
 
-```{r}
+# predictor matrix  -------------------------------------------------------
+
 meth <- make.method(impute_me[[1]])
 
 pred <- make.predictorMatrix(impute_me[[1]])
@@ -82,9 +71,9 @@ meth["logB"] <- "~I(logM + logN)"
 
 pred[c("logM", "logN"), "logB"] <-  0
 
-```
 
-```{r}
+# imputation --------------------------------------------------------------
+
 imputed_bsq <-
   impute_me[[1]] %>% 
   mice(m = 50, maxit = 100, printFlag = FALSE)
@@ -97,9 +86,8 @@ imputed_epb <-
   impute_me[[3]] %>% 
   mice(m = 50, maxit = 100, printFlag = FALSE)
 
-```
+# completion --------------------------------------------------------------
 
-```{r}
 complete_bsq <- 
   complete(imputed_bsq, "long") %>% 
   group_split(.imp)
@@ -112,9 +100,8 @@ complete_epb <-
   complete(imputed_epb, "long") %>% 
   group_split(.imp)
 
-```
+# easy select -------------------------------------------------------------
 
-```{r}
 df_nameswant <- c("species_id_stage_id",
                   "M",
                   "N",
@@ -123,9 +110,8 @@ df_nameswant <- c("species_id_stage_id",
                   "organismal_group",
                   "consumer_strategy_stage")
 
-```
+# final clean -------------------------------------------------------------
 
-```{r}
 flux_bsq <-
   complete_bsq %>% 
   map(cbind, nodes_bsq) %>% 
@@ -153,9 +139,8 @@ flux_epb <-
       N = exp(logN)) %>%
   map(select, df_nameswant)
 
-```
+# org types ---------------------------------------------------------------
 
-```{r}
 org_type_csm <- 
   flux_csm[[1]] %>% 
   pull(organismal_group) %>% 
@@ -199,9 +184,7 @@ org_type_csm <-
     detritus = "virus",
     para = "trematode"
   )
-```
 
-```{r}
 org_type_bsq <- 
   flux_bsq[[1]] %>% 
   pull(organismal_group) %>% 
@@ -246,9 +229,6 @@ org_type_bsq <-
     para = "trematode"
   )
 
-```
-
-```{r}
 org_type_epb <- 
   flux_epb[[1]] %>% 
   pull(organismal_group) %>% 
@@ -292,9 +272,9 @@ org_type_epb <-
     detritus = "virus",
     para = "trematode"
   )
-```
 
-```{r}
+# matrices ----------------------------------------------------------------
+
 mat_bsq <- 
   links_bsq %>% 
   mutate(resource_id = as.character(resource_species_id_stage_id),
@@ -322,9 +302,8 @@ mat_epb <-
   as_adj() %>% 
   as.matrix()
 
-```
+# vectors -----------------------------------------------------------------
 
-```{r}
 M_bsq <- 
   flux_bsq %>% 
   lapply(pull, M)
@@ -366,14 +345,13 @@ B_epb <-
   map(mutate,
       B = M * N) %>% 
   map(pull, B)
-```
 
-```{r}
+# met types ---------------------------------------------------------------
+
 met_types <-  c("ecto_vert", "endo_vert", "invert")
 
-```
+# losses ------------------------------------------------------------------
 
-```{r}
 losses_bsq <- 
   lapply(M_bsq, function(x){
     losses = rep(NA, length(x))
@@ -409,73 +387,74 @@ losses_epb <-
     losses[inv] = 18.18 * x[inv] ^ (-0.29)
     losses
   })
-```
 
-```{r}
+
+# efficiencies -----------------------------------------------------------
+
 efficiencies_bsq <- 
   lapply(M_bsq, function(x){
-  efficiencies_bsq = rep(NA, length(x[[1]]))
-  efficiencies_bsq[org_type_bsq == "animal"] = 0.906
-  efficiencies_bsq[org_type_bsq == "para"] = 0.906
-  efficiencies_bsq[org_type_bsq == "plant"] = 0.545 
-  efficiencies_bsq[org_type_bsq == "detritus"] = 0.158
-  efficiencies_bsq
-})
+    efficiencies_bsq = rep(NA, length(x[[1]]))
+    efficiencies_bsq[org_type_bsq == "animal"] = 0.906
+    efficiencies_bsq[org_type_bsq == "para"] = 0.906
+    efficiencies_bsq[org_type_bsq == "plant"] = 0.545 
+    efficiencies_bsq[org_type_bsq == "detritus"] = 0.158
+    efficiencies_bsq
+  })
 
 efficiencies_csm <- 
   lapply(M_csm, function(x){
-  efficiencies_csm = rep(NA, length(x[[1]]))
-  efficiencies_csm[org_type_csm == "animal"] = 0.906
-  efficiencies_csm[org_type_csm == "para"] = 0.906
-  efficiencies_csm[org_type_csm == "plant"] = 0.545 
-  efficiencies_csm[org_type_csm == "detritus"] = 0.158
-  efficiencies_csm
-})
+    efficiencies_csm = rep(NA, length(x[[1]]))
+    efficiencies_csm[org_type_csm == "animal"] = 0.906
+    efficiencies_csm[org_type_csm == "para"] = 0.906
+    efficiencies_csm[org_type_csm == "plant"] = 0.545 
+    efficiencies_csm[org_type_csm == "detritus"] = 0.158
+    efficiencies_csm
+  })
 
 efficiencies_epb <- 
   lapply(M_epb, function(x){
-  efficiencies_epb = rep(NA, length(x[[1]]))
-  efficiencies_epb[org_type_epb == "animal"] = 0.906
-  efficiencies_epb[org_type_epb == "para"] = 0.906
-  efficiencies_epb[org_type_epb == "plant"] = 0.545 
-  efficiencies_epb[org_type_epb == "detritus"] = 0.158
-  efficiencies_epb
-})
-```
+    efficiencies_epb = rep(NA, length(x[[1]]))
+    efficiencies_epb[org_type_epb == "animal"] = 0.906
+    efficiencies_epb[org_type_epb == "para"] = 0.906
+    efficiencies_epb[org_type_epb == "plant"] = 0.545 
+    efficiencies_epb[org_type_epb == "detritus"] = 0.158
+    efficiencies_epb
+  })
 
-```{r}
+
+# fluxweb -----------------------------------------------------------------
+
 bsq_fluxes <- 
   lapply(1:length(N_bsq), function(x) {
     fluxing(
-    mat = mat_bsq,
-    biomasses = B_bsq[[x]],
-    losses = losses_bsq[[x]],
-    efficiencies = efficiencies_bsq[[x]]
+      mat = mat_bsq,
+      biomasses = B_bsq[[x]],
+      losses = losses_bsq[[x]],
+      efficiencies = efficiencies_bsq[[x]]
     )
   })
 
 csm_fluxes <- 
   lapply(1:length(N_csm), function(x) {
     fluxing(
-    mat = mat_csm,
-    biomasses = B_csm[[x]],
-    losses = losses_csm[[x]],
-    efficiencies = efficiencies_csm[[x]]
+      mat = mat_csm,
+      biomasses = B_csm[[x]],
+      losses = losses_csm[[x]],
+      efficiencies = efficiencies_csm[[x]]
     )
   })
 
 epb_fluxes <- 
   lapply(1:length(N_epb), function(x) {
     fluxing(
-    mat = mat_epb,
-    biomasses = B_epb[[x]],
-    losses = losses_epb[[x]],
-    efficiencies = efficiencies_epb[[x]]
+      mat = mat_epb,
+      biomasses = B_epb[[x]],
+      losses = losses_epb[[x]],
+      efficiencies = efficiencies_epb[[x]]
     )
   })
-```
--
-```{r}
 
-```
+#### END ####
+
+
 
