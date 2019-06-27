@@ -1,3 +1,9 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r prep}
 ### Clean Data
 library(tidyverse)
 library(janitor)
@@ -8,7 +14,7 @@ library(janitor)
 
 ### Load Nodes
 csm_nodes <- 
-  read_csv("data/interactionwebdb/Carpinteria/CSMweb_Nodes.csv") %>% 
+  read_csv("") %>% 
   clean_names() %>% 
   remove_empty("cols")
 epb_nodes <- 
@@ -40,7 +46,9 @@ c_nodes_wrk <-
          abundance_no_ha,
          biomass_kg_ha) %>%
   # change characters to lower
-  mutate_if(is.character, str_to_lower)
+  mutate_if(is.character, str_to_lower) %>% 
+  filter(working_name != "roots")
+
 
 e_nodes_wrk <- 
   epb_nodes %>% 
@@ -61,7 +69,9 @@ e_nodes_wrk <-
          abundance_no_ha,
          biomass_kg_ha) %>% 
   # change characters to lower
-  mutate_if(is.character, str_to_lower)
+  mutate_if(is.character, str_to_lower) %>% 
+  filter(working_name != "roots")
+
 
 b_nodes_wrk <- 
   bsq_nodes %>% 
@@ -82,7 +92,8 @@ b_nodes_wrk <-
          abundance_no_ha,
          biomass_kg_ha) %>% 
   # change characters to lower
-  mutate_if(is.character, str_to_lower)
+  mutate_if(is.character, str_to_lower) %>% 
+  filter(working_name != "roots")
 
 
 # ---------------------------------------------------------------------
@@ -158,6 +169,9 @@ bsq_links <-
   clean_names() %>% 
   remove_empty("cols")
 
+```
+
+```{r mice}
 # - -----------------------------------------------------------------------
 
 library(mice)
@@ -276,7 +290,9 @@ b_list_mutate <- map(b_list_bound, mutate,
                      abundance = exp(log_abundance))
 
 b_list_select <- map(b_list_mutate, select, df_nameswant)
+```
 
+```{r}
 ### Network Setup
 library(igraph)
 library(tidyverse)
@@ -286,21 +302,21 @@ library(tidyverse)
 # Graphs ------------------------------------------------------------------
 
 csm.ig <- 
-  c_links_wrk %>%
+  csm_links %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>% 
   graph_from_data_frame(directed = T, vertices = NULL)
 
 epb.ig <- 
-  e_links_wrk %>%
+  epb_links %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>%
   graph_from_data_frame(directed = T, vertices = NULL)
 
 bsq.ig <- 
-  b_links_wrk %>%
+  bsq_links %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>% 
@@ -362,6 +378,9 @@ TL_bsq <- cbind(bsq_troph, b_list_select[[3]])
 TL_csm %>% 
   ggplot(aes(x = log(body_size))) +
   geom_histogram(binwidth = 1)
+```
+
+```{r fluxweb}
 
 ### Fluxing
 
@@ -496,7 +515,5 @@ mat.fluxes <-
           efficiencies =  efficiencies_csm)
 
 
-
-
-
+```
 
