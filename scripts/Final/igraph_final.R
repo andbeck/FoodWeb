@@ -6,26 +6,26 @@ library(tidyverse)
 
 # Load --------------------------------------------------------------------
 
-load("data/workspace_data.RDS")
+load("data/flux_data.RDS")
 
 # Graphs ------------------------------------------------------------------
 
 csm.ig <- 
-  c_links_wrk %>%
+  links_csm %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>% 
   graph_from_data_frame(directed = T, vertices = NULL)
 
 epb.ig <- 
-  e_links_wrk %>%
+  links_epb %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>%
   graph_from_data_frame(directed = T, vertices = NULL)
 
 bsq.ig <- 
-  b_links_wrk %>%
+  links_bsq %>%
   mutate(resource = as.character(resource_species_id_stage_id),
          consumer = as.character(consumer_species_id_stage_id)) %>% 
   select(resource, consumer) %>% 
@@ -89,4 +89,4 @@ TL_csm %>%
   geom_histogram(binwidth = 1)
 
 
-save.image("igraph_data.RDS")
+save.image("data/igraph_data.RDS")
