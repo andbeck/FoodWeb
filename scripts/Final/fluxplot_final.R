@@ -78,7 +78,6 @@ bsq_dat <-
   gather(key = interaction, value = flux) %>% 
   mutate(system = "BSQ")
 
-
 bsq <- 
   bsq_dat %>% 
   ggplot(aes(x = reorder(interaction, flux), y = log(flux))) +
@@ -148,8 +147,8 @@ fluxingdat <-
   mutate(interaction = as.factor(interaction))
 
 fluxingdat %>% 
-  ggplot(aes(x = reorder(interaction, flux), y = log(flux))) +
-  geom_violin() +
+  ggplot(aes(x = reorder(interaction, flux), y = flux)) +
+  geom_boxplot() +
   facet_wrap(~ system) +
   xlab("Feeding Type") +
   ylab(expression(log("Energy J.yr^-1")))
@@ -269,6 +268,8 @@ for (x in 1:length(epb_fluxes)) {
   parasitoid[[x]] = sum(rowSums(epb_fluxes[[x]][con_type_epb == "parasitoid" ,]))
 }
 
+parasitism_epb = c(nonfeeding, paracastrator, ttp, macroparasite)
+
 con_epb <- 
   cbind(detritus, autotroph, detritivore, predator, macroparasite,
         nonfeeding, pathogen, parasitoid, paracastrator, ttp) %>% 
@@ -286,5 +287,9 @@ fluxingdat_con %>%
   geom_boxplot() +
   facet_wrap(~ system)
 
-gdata::keep(fluxingdat, fluxingdat_con, sure = T)
+fluxingdat %>% 
+  ggplot(aes(x = reorder(interaction, flux), y = log(flux))) +
+  geom_boxplot() +
+  facet_wrap(~ system)
+
 save.image("fluxing_graph_data.RDS")

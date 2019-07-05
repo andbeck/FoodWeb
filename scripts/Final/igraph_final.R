@@ -1,7 +1,7 @@
 ### Network Setup
 library(igraph)
 library(tidyverse)
-
+library(parallel)
 # library(NetIndices) # masks select
 
 # Load --------------------------------------------------------------------
@@ -39,12 +39,9 @@ graphs <- list(csm.ig, epb.ig, bsq.ig)
 # Indices -----------------------------------------------------------------
 
 mats <- # matrix form
-  lapply(graphs, get.adjacency) %>% # dcgClass matrix
+  mclapply(graphs, get.adjacency, mc.cores = 10) %>% # dcgClass matrix
   lapply(as.matrix) # traditional matrix form
 
-
-GenInd <- lapply(mats, NetIndices::GenInd) # network stats
-TrophInd <- lapply(mats, NetIndices::TrophInd) # trophic levels of nodes
 
 # Stats -------------------------------------------------------------------
 
@@ -70,23 +67,60 @@ source("scripts/practice/FoodWebFunctions.R")
 detail_stats <- Get.web.stats(mats)
 
 # Trophic Level -----------------------------------------------------------
-
-
-## off by one - missing a node from troph ind?
+GenInd <- mclapply(mats, NetIndices::GenInd, mc.cores = 10) # network stats
+TrophInd <- mclapply(mats, NetIndices::TrophInd, mc.cores = 10) # trophic levels of nodes
 
 csm_troph <- TrophInd[[1]]
+csm_troph$species_id_stage_id <- as.numeric(rownames(csm_troph))
+
 epb_troph <- TrophInd[[2]]
+epb_troph$species_id_stage_id <- as.numeric(rownames(epb_troph))
+
 bsq_troph <- TrophInd[[3]]
+bsq_troph$species_id_stage_id <- as.numeric(rownames(bsq_troph))
 
-# csm_troph losing a node
 
-TL_csm <- cbind(csm_troph, c_list_select[[1]])
-TL_epb <- cbind(epb_troph, e_list_select[[2]])
-TL_bsq <- cbind(bsq_troph, b_list_select[[3]])
+# Join levels with imputed M/N --------------------------------------------
+troph_csm <- 
+  flux_csm %>% 
+  map(left_join, csm_troph) %>% 
+  map(cbind, 
+      org_type = org_type_csm,
+      con_type = con_type_csm) %>% 
+  bind_rows()
 
-TL_csm %>% 
-  ggplot(aes(x = log(body_size))) +
-  geom_histogram(binwidth = 1)
+troph_bsq <- 
+  flux_bsq %>% 
+  map(left_join, bsq_troph) %>% 
+  map(cbind, 
+      org_type = org_type_bsq,
+      con_type = con_type_bsq) %>%
+  bind_rows()
 
+troph_epb <- 
+  flux_epb %>% 
+  map(left_join, epb_troph) %>% 
+  map(cbind, org_type = org_type_epb,
+      con_type = con_type_epb) %>%
+  bind_rows()
+
+distribution <- 
+  bind_rows(troph_bsq, troph_csm, troph_epb) %>% 
+  drop_na()
+
+distribution %>% 
+  ggplot(aes(x = con_type, y = TL, col = org_type)) +
+  geom_boxplot()
+
+distribution %>% 
+  group_by(con_type) %>% 
+  summarise(
+    medianTL = median(TL),
+    meanTL = mean(TL),
+    maxTL = max(TL),
+    minTL = min(TL)
+  )
+
+# save --------------------------------------------------------------------
 
 save.image("data/igraph_data.RDS")

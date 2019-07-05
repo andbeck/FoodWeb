@@ -75,16 +75,16 @@ pred[c("logM", "logN"), "logB"] <-  0
 # imputation --------------------------------------------------------------
 
 imputed_bsq <-
-  impute_me[[1]] %>% 
-  mice(m = 50, maxit = 100, printFlag = FALSE)
+  #impute_me[[1]] %>% 
+  parlmice(impute_me[[1]],m = 50, maxit = 100, printFlag = FALSE, cl.type = "FORK")
 
 imputed_csm <-
-  impute_me[[2]] %>% 
-  mice(m = 50, maxit = 100, printFlag = FALSE)
+  #impute_me[[2]] %>% 
+  parlmice(impute_me[[2]], m = 50, maxit = 100, printFlag = FALSE, cl.type = "FORK")
 
 imputed_epb <-
-  impute_me[[3]] %>% 
-  mice(m = 50, maxit = 100, printFlag = FALSE)
+  #impute_me[[3]] %>% 
+  parlmice(impute_me[[3]], m = 50, maxit = 100, printFlag = FALSE, cl.type = "FORK")
 
 # completion --------------------------------------------------------------
 
@@ -174,7 +174,7 @@ org_type_csm <-
     animal = "myxozoan",
     animal = "monogenean",
     animal = "cestode",
-    animal = "nematode",
+    para = "nematode",
     animal = "acanthocephalan",
     # animal = "anthozoan",
     # animal = "holothurian",
@@ -218,7 +218,7 @@ org_type_bsq <-
     animal = "ophiuroid",
     animal = "monogenean",
     animal = "cestode",
-    animal = "nematode",
+    para = "nematode",
     animal = "acanthocephalan",
     animal = "tanaidacean",
     animal = "beetle",
@@ -262,15 +262,72 @@ org_type_epb <-
     # animal = "myxozoan",
     animal = "monogenean",
     animal = "cestode",
-    animal = "nematode",
+    para = "nematode",
     animal = "acanthocephalan",
     animal = "anthozoan",
     animal = "holothurian",
     animal = "phoronid",
     animal = "turbellarian",
     # viruslabel as detritus for now,
-    detritus = "virus",
+    para = "virus",
     para = "trematode"
+  )
+
+# Consumer type -----------------------------------------------------------
+
+
+con_type_csm <- 
+  flux_csm[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    plant = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    animal = "predator",
+    animal = "detritivore",
+    animal = "micropredator",
+    # animal = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
+  )
+
+con_type_bsq <- 
+  flux_bsq[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    plant = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    animal = "predator",
+    animal = "detritivore",
+    animal = "micropredator",
+    animal = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
+  )
+
+con_type_epb <- 
+  flux_epb[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    plant = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    animal = "predator",
+    animal = "detritivore",
+    animal = "micropredator",
+    animal = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
   )
 
 # matrices ----------------------------------------------------------------
@@ -394,30 +451,30 @@ losses_epb <-
 efficiencies_bsq <- 
   lapply(M_bsq, function(x){
     efficiencies_bsq = rep(NA, length(x[[1]]))
-    efficiencies_bsq[org_type_bsq == "animal"] = 0.906
-    efficiencies_bsq[org_type_bsq == "para"] = 0.906
-    efficiencies_bsq[org_type_bsq == "plant"] = 0.545 
-    efficiencies_bsq[org_type_bsq == "detritus"] = 0.158
+    efficiencies_bsq[con_type_bsq == "animal"] = 0.906
+    efficiencies_bsq[con_type_bsq == "para"] = 0.906
+    efficiencies_bsq[con_type_bsq == "plant"] = 0.545 
+    efficiencies_bsq[con_type_bsq == "detritus"] = 0.158
     efficiencies_bsq
   })
 
 efficiencies_csm <- 
   lapply(M_csm, function(x){
     efficiencies_csm = rep(NA, length(x[[1]]))
-    efficiencies_csm[org_type_csm == "animal"] = 0.906
-    efficiencies_csm[org_type_csm == "para"] = 0.906
-    efficiencies_csm[org_type_csm == "plant"] = 0.545 
-    efficiencies_csm[org_type_csm == "detritus"] = 0.158
+    efficiencies_csm[con_type_csm == "animal"] = 0.906
+    efficiencies_csm[con_type_csm == "para"] = 0.906
+    efficiencies_csm[con_type_csm == "plant"] = 0.545 
+    efficiencies_csm[con_type_csm == "detritus"] = 0.158
     efficiencies_csm
   })
 
 efficiencies_epb <- 
   lapply(M_epb, function(x){
     efficiencies_epb = rep(NA, length(x[[1]]))
-    efficiencies_epb[org_type_epb == "animal"] = 0.906
-    efficiencies_epb[org_type_epb == "para"] = 0.906
-    efficiencies_epb[org_type_epb == "plant"] = 0.545 
-    efficiencies_epb[org_type_epb == "detritus"] = 0.158
+    efficiencies_epb[con_type_epb == "animal"] = 0.906
+    efficiencies_epb[con_type_epb == "para"] = 0.906
+    efficiencies_epb[con_type_epb == "plant"] = 0.545 
+    efficiencies_epb[con_type_epb == "detritus"] = 0.158
     efficiencies_epb
   })
 
