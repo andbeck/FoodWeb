@@ -76,7 +76,7 @@ pred[c("logM", "logN"), "logB"] <-  0
 
 imputed_bsq <-
   #impute_me[[1]] %>% 
-  parlmice(impute_me[[1]],m = 50, maxit = 100, printFlag = FALSE, cl.type = "FORK")
+  parlmice(impute_me[[1]], m = 50, maxit = 100, printFlag = FALSE, cl.type = "FORK")
 
 imputed_csm <-
   #impute_me[[2]] %>% 
