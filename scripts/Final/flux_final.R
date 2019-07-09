@@ -294,6 +294,24 @@ con_type_csm <-
     para = "trophically transmitted parasite"
   )
 
+feed_type_csm <- 
+  flux_csm[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    autotroph = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    carnivore = "predator",
+    detritivore = "detritivore",
+    carnivore = "micropredator",
+    # animal = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
+  )
+
 con_type_bsq <- 
   flux_bsq[[1]] %>% 
   pull(consumer_strategy_stage) %>% 
@@ -312,6 +330,24 @@ con_type_bsq <-
     para = "trophically transmitted parasite"
   )
 
+feed_type_bsq <- 
+  flux_csm[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    autotroph = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    carnivore = "predator",
+    detritivore = "detritivore",
+    carnivore = "micropredator",
+    # carnivore = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
+  )
+
 con_type_epb <- 
   flux_epb[[1]] %>% 
   pull(consumer_strategy_stage) %>% 
@@ -324,6 +360,24 @@ con_type_epb <-
     animal = "detritivore",
     animal = "micropredator",
     animal = "parasitoid",
+    para = "macroparasite",
+    para = "nonfeeding",
+    para = "parasitic castrator",
+    para = "trophically transmitted parasite"
+  )
+
+feed_type_epb <- 
+  flux_csm[[1]] %>% 
+  pull(consumer_strategy_stage) %>% 
+  as.factor() %>%
+  fct_recode(
+    autotroph = "autotroph",
+    detritus = "detritus",
+    detritus = "pathogen",
+    carnivore = "predator",
+    detritivore = "detritivore",
+    carnivore = "micropredator",
+    # carnivore = "parasitoid",
     para = "macroparasite",
     para = "nonfeeding",
     para = "parasitic castrator",

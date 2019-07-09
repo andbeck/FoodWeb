@@ -1,15 +1,3 @@
----
-title: "MICE"
-author: "Daniel Smith"
-date: "06/06/2019"
-output: html_document
----
-
-```{r setup, include=FALSE, dpi=300, fig.width= 5, fig.height=3}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r prep data}
 ### Using MICE to obtain good imputation values for Mass and Abundance of organisms ###
 library(tidyverse)
 library(mice)
@@ -21,9 +9,7 @@ summary(csm_nodes$Kingdom)
 
 ### Clean - remove protozoan kingdoms and virus
 csm_nodes <- 
-  csm_nodes %>% 
-  filter(Kingdom != "Virus",
-         Kingdom != "Protozoa")
+  csm_nodes
 
 ### Select variables we want for imputation
 work <- 
@@ -61,9 +47,7 @@ work %>%
   ggplot(aes(x = LogBodySize, y = LogAbundance)) +
   geom_point() +
   geom_smooth(method = lm, se = FALSE)
-```
 
-```{r mice setup}
 dat <- 
   work %>% 
   # filter(Abundance != 0) %>% # remove abundance values = 0
@@ -78,27 +62,17 @@ meth <-
 pred <- 
   ini$predictorMatrix
 
-```
-
-```{r predictor matrix and method}
 meth["LogBodySize"] <- "pmm"
 meth["LogAbundance"] <- "pmm"
 meth["LogBiomass"] <- "~I(LogBodySize + LogAbundance)" # addition of logs is the same as multiplying exponent of log
 pred[c("LogBodySize", "LogAbundance"), "LogBiomass"] <-  0
-```
 
 
-```{r imputation}
-imp <- mice(dat, meth = meth, predictorMatrix = pred, printFlag = FALSE, m = 5, maxit = 100)
+imp <- parlmice(dat, meth = meth, predictorMatrix = pred, printFlag = T, m = 5, maxit = 100)
 complete <- complete(imp)
-```
 
-```{r visualise}
 densityplot(imp, layout = c(3,1)) # densities look good
 stripplot(imp) # distribution looks good
 bwplot(imp) # bw plot looks within original data range
-xyplot(imp, LogBodySize ~ LogAbundance| as.factor(.imp), type = c("p", "r"), pch = c(1, 20)) # respects allometry
+xyplot(imp, LogBodySize ~ LogAbundance| as.factor(.imp), type = c("p", "r"), pch = c(20, 20)) # respects allometry
 plot(imp) # good convergance
-```
-
-

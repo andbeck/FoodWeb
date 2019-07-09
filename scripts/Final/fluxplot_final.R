@@ -13,15 +13,15 @@ for (x in 1:length(csm_fluxes)) {
   # Basal Species
   basal = colSums(csm_fluxes[[x]]) == 0
   # Plants
-  plants = basal
+  plants = basal - sum(rowSums(csm_fluxes[[x]][feed_type_csm == "detritus",]))
   # herb_csm -- should be true
-  herb_csm[[x]] = sum(rowSums(csm_fluxes[[x]][plants,]))
+  herb_csm[[x]] = sum(rowSums(csm_fluxes[[x]][feed_type_csm == "autotroph",]))
   # carn_csm -- wrong becase this includes carnivores and detritivores
-  carn_csm[[x]] = sum(rowSums(csm_fluxes[[x]][org_type_csm == "animal" ,]))
+  carn_csm[[x]] = sum(rowSums(csm_fluxes[[x]][feed_type_csm == "carnivore",]))
   # detr_csm -- need a way to identify detritivores
-  detr_csm[[x]] = sum(rowSums(csm_fluxes[[x]][org_type_csm == "detritus",]))
+  detr_csm[[x]] = sum(rowSums(csm_fluxes[[x]][feed_type_csm == "detritus",]))
   # para_csm
-  para_csm[[x]] = sum(rowSums(csm_fluxes[[x]][org_type_csm == "para",]))
+  para_csm[[x]] = sum(rowSums(csm_fluxes[[x]][feed_type_csm == "para",]))
   # total_csm
   total_csm[[x]] = sum(csm_fluxes[[x]])
 }
@@ -43,7 +43,7 @@ csm <-
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(legend.position = "none") +
   ylim(0, 20)
-
+csm
 
 
 
@@ -59,15 +59,15 @@ for (x in 1:length(bsq_fluxes)) {
   # Basal Species
   basal = colSums(bsq_fluxes[[x]]) == 0
   # Plants
-  plants = basal
+  plants = basal - sum(rowSums(bsq_fluxes[[x]][feed_type_bsq == "detritus",]))
   # herb_bsq -- should be true
-  herb_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][plants,]))
+  herb_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][feed_type_bsq == "autotroph",]))
   # carn_bsq -- wrong becase this includes carnivores and detritivores
-  carn_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][org_type_bsq == "animal" ,]))
+  carn_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][feed_type_bsq == "carnivore",]))
   # detr_bsq -- need a way to identify detritivores
-  detr_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][org_type_bsq == "detritus",]))
+  detr_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][feed_type_bsq == "detritus",]))
   # para_bsq
-  para_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][org_type_bsq == "para",]))
+  para_bsq[[x]] = sum(rowSums(bsq_fluxes[[x]][feed_type_bsq == "para",]))
   # total_bsq
   total_bsq[[x]] = sum(bsq_fluxes[[x]])
 }
@@ -102,15 +102,15 @@ for (x in 1:length(epb_fluxes)) {
   # Basal Species
   basal = colSums(epb_fluxes[[x]]) == 0
   # Plants
-  plants = basal
+  plants = basal - sum(rowSums(epb_fluxes[[x]][feed_type_epb == "detritus",]))
   # herb_epb -- should be true
-  herb_epb[[x]] = sum(rowSums(epb_fluxes[[x]][plants,]))
+  herb_epb[[x]] = sum(rowSums(epb_fluxes[[x]][feed_type_epb == "autotroph",]))
   # carn_epb -- wrong becase this includes carnivores and detritivores
-  carn_epb[[x]] = sum(rowSums(epb_fluxes[[x]][org_type_epb == "animal" ,]))
+  carn_epb[[x]] = sum(rowSums(epb_fluxes[[x]][feed_type_epb == "carnivore",]))
   # detr_epb -- need a way to identify detritivores
-  detr_epb[[x]] = sum(rowSums(epb_fluxes[[x]][org_type_epb == "detritus",]))
+  detr_epb[[x]] = sum(rowSums(epb_fluxes[[x]][feed_type_epb == "detritivore",]))
   # para_epb
-  para_epb[[x]] = sum(rowSums(epb_fluxes[[x]][org_type_epb == "para",]))
+  para_epb[[x]] = sum(rowSums(epb_fluxes[[x]][feed_type_epb == "para",]))
   # total_epb
   total_epb[[x]] = sum(epb_fluxes[[x]])
 }
@@ -134,7 +134,7 @@ epb <-
 
 library(cowplot)
 theme_set(theme_grey())
-plot_grid(bsq, csm, epb, ncol = 1)
+plot_grid(bsq, csm, epb)
 
 fluxingdat <- 
   bind_rows(bsq_dat, csm_dat, epb_dat) %>% 
@@ -147,7 +147,7 @@ fluxingdat <-
   mutate(interaction = as.factor(interaction))
 
 fluxingdat %>% 
-  ggplot(aes(x = reorder(interaction, flux), y = flux)) +
+  ggplot(aes(x = reorder(interaction, flux), y = log(flux))) +
   geom_boxplot() +
   facet_wrap(~ system) +
   xlab("Feeding Type") +
@@ -293,3 +293,4 @@ fluxingdat %>%
   facet_wrap(~ system)
 
 save.image("fluxing_graph_data.RDS")
+
