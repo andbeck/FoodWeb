@@ -33,7 +33,9 @@ niche_epb_TL <- mclapply(niche_epb, NetIndices::TrophInd, mc.cores = 12)
 # Empirical TL Distribution -----------------------------------------------
 
 emp_TL <- 
-  list(troph_bsq, troph_csm, troph_epb) %>% 
+  list(troph_bsq, troph_csm, troph_epb) %>%
+  # distinct rows
+  lapply(distinct) %>% 
   # drop NA from Roots isolated node
   lapply(drop_na) %>% 
   # bin TL into .5 trophic level intervals
@@ -45,6 +47,8 @@ emp_TL <-
 
 bsq_TL <- 
   troph_bsq %>% 
+  # distinct
+  distinct() %>%  
   # select useful cols
   select(org_type, TL) %>% 
   # drop NA TL value from isolated node in web
@@ -70,6 +74,8 @@ bsq_TL[[1]] <-
   
 bsq_M <- 
   troph_bsq %>% 
+  # distinct
+  distinct() %>%  
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>%  
   # select useful cols
@@ -87,6 +93,8 @@ bsq_M <-
 
 bsq_N <- 
   troph_bsq %>% 
+  # distinct
+  distinct() %>%  
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>%  
   # select useful cols
@@ -159,6 +167,8 @@ for(i in seq(bsq_sim_TL)){
 
 csm_TL <- 
   troph_csm %>% 
+  # distinct
+  distinct() %>%  
   # select useful cols
   select(org_type, TL) %>% 
   # drop NA TL value from isolated node in web
@@ -183,6 +193,8 @@ csm_TL[[1]] <-
 
 csm_M <- 
   troph_csm %>% 
+  # distinct
+  distinct() %>%  
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>%  
   # select useful cols
@@ -200,6 +212,8 @@ csm_M <-
 
 csm_N <- 
   troph_csm %>% 
+  # distinct
+  distinct() %>%  
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>% 
   # select useful cols
@@ -263,7 +277,9 @@ for(i in seq(csm_sim_TL)){
 # EPB only web ------------------------------------------------------------
 
 epb_TL <- 
-  troph_epb %>% 
+  troph_epb %>%
+  # distinct
+  distinct() %>% 
   # select useful cols
   select(org_type, TL) %>% 
   # drop NA TL value from isolated node in web
@@ -288,6 +304,8 @@ epb_TL[[1]] <-
 
 epb_M <- 
   troph_epb %>% 
+  # distinct
+  distinct() %>% 
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>%  
   # select useful cols
@@ -301,10 +319,12 @@ epb_M <-
   # split into trophic cut groups
   group_split(TL_cut) %>% 
   # pull vector of org_type for each group
-  lapply(pull, M)
+  lapply(pull, M) 
 
 epb_N <- 
   troph_epb %>% 
+  # distinct
+  distinct() %>%  
   # remove parasite abundances from Null Model
   filter(org_type != "para") %>%  
   # select useful cols
