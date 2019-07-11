@@ -569,7 +569,43 @@ epb_fluxes <-
 
 save.image("data/flux_data.RDS")
 
+
+# Sensitivity -------------------------------------------------------------
+
+sd.cvs.eff <- c()
+sd.cvs.loss <- c()
+sd.cvs.mat <- c()
+
+for (var in seq(0, 0.12, 0.01)) {
+cat('var: ', var, '\n')  
+res = sensitivity(fluxing, "efficiencies", 0.1, 5, full.output = TRUE, 
+                  mat = mat_epb, 
+                  biomasses = B_epb[[1]], 
+                  losses = losses_epb[[1]], 
+                  efficiencies = efficiencies_epb[[1]])
+sd.cvs.eff = c(sd.cvs.eff, mean(res[[2]], na.rm = TRUE))
+
+res = sensitivity(fluxing, "losses", 0.1, 5, full.output = TRUE, 
+                  mat = mat_epb, 
+                  biomasses = B_epb[[1]], 
+                  losses = losses_epb[[1]], 
+                  efficiencies = efficiencies_epb[[1]])
+sd.cvs.loss = c(sd.cvs.loss, mean(res[[2]], na.rm = TRUE))
+
+res = sensitivity(fluxing, "mat", 0.1, 5, full.output = TRUE, 
+                  mat = mat_epb, 
+                  biomasses = B_epb[[1]], 
+                  losses = losses_epb[[1]], 
+                  efficiencies = efficiencies_epb[[1]])
+sd.cvs.mat = c(sd.cvs.mat, mean(res[[2]], na.rm = TRUE))
+}
+
+plot(sd.cvs.eff ~ seq, xlim = c(0, 0.12),
+     xlab = 'variation in parameters',
+     ylab = 'observed departure to original results',
+     pch = 16)
+points(sd.cvs.loss, col = 'red', pch = 16)
+points(sd.cvs.mat, col = 'green', pch = 16)
+abline(a = 0, b = 1, lty = 2)
+
 #### END ####
-
-
-
