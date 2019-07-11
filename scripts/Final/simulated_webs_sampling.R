@@ -14,6 +14,8 @@ library(parallel)
 # random_bsq <- Random.model(S = gorder(bsq.ig) + 1, L = gsize(bsq.ig), N = 10) # +1 for roots node which gets removed because its isolated
 niche_bsq <- Niche.model(S = gorder(bsq.ig) + 1, L = gsize(bsq.ig), N = 50) # ^ as above
 
+mclapply(niche_bsq, Plot.matrix)
+
 # models for CSM
 # random_csm <- Random.model(S = gorder(csm.ig), L = gsize(csm.ig), N = 10)
 niche_csm <- Niche.model(S = gorder(csm.ig), L = gsize(csm.ig), N = 50)
