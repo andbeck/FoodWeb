@@ -1,4 +1,3 @@
-
 # Simulating Webs ---------------------------------------------------------
 source("scripts/practice/FoodWebFunctions.R")
 load("data/igraph_data.RDS")
@@ -70,8 +69,8 @@ bsq_TL[[1]] <-
   subset(value != "animal") %>% 
   droplevels() %>% 
   pull(value)
-  
-  
+
+
 bsq_M <- 
   troph_bsq %>% 
   # distinct
@@ -118,50 +117,6 @@ bsq_sim_TL <-
       org_type = NA,
       M = NA,
       N = NA)
-
-# pre allocate output
-out_bsq <- list()
-
-# loop -  replace with sampled animal types for appropriate TL
-for(i in seq(bsq_sim_TL)){
-  x <- bsq_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, org_type)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(bsq_TL[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_bsq$TL[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate M
-for(i in seq(bsq_sim_TL)){
-  x <- bsq_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, M)
-  for(j in 1:length(z)){
-    if (length(z) > length(bsq_M)){
-      z[[j]] <- sample(bsq_N[[length(bsq_M)]], replace = TRUE, length(z[[j]]))
-    }
-    else
-      z[[j]] <- sample(bsq_M[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_bsq$M[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate N
-for(i in seq(bsq_sim_TL)){
-  x <- bsq_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, N)
-  for(j in 1:length(z)){
-    if (length(z) > length(bsq_N)){
-      z[[j]] <- sample(bsq_N[[length(bsq_N)]], replace = TRUE, length(z[[j]]))
-    }
-    else
-    z[[j]] <- sample(bsq_N[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_bsq$N[[i]] <- z
-}
 
 # CSM only web ------------------------------------------------------------
 
@@ -238,42 +193,6 @@ csm_sim_TL <-
       M = NA,
       N = NA)
 
-# pre allocate output
-out_csm <- list()
-
-# loop -  replace with sampled animal types for appropriate TL
-for(i in seq(csm_sim_TL)){
-  x <- csm_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, org_type)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(csm_TL[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_csm$TL[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate M
-for(i in seq(csm_sim_TL)){
-  x <- csm_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, M)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(csm_M[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_csm$M[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate N
-for(i in seq(csm_sim_TL)){
-  x <- csm_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, N)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(csm_N[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_csm$N[[i]] <- z
-}
-
 # EPB only web ------------------------------------------------------------
 
 epb_TL <- 
@@ -349,94 +268,171 @@ epb_sim_TL <-
       M = NA,
       N = NA)
 
-# pre allocate output
+
+
+# Sampling and matching ---------------------------------------------------
+
+out_bsq <- list()
+out_csm <- list()
 out_epb <- list()
 
-# loop -  replace with sampled animal types for appropriate TL
-for(i in seq(epb_sim_TL)){
+for (i in 1:length(bsq_sim_TL)) {
+  # gets the list structure of the food web we want to sample into
+  x <- bsq_sim_TL[[i]]
+  y <- group_split(x, TL_cut)
+  z <- map(y, pull, org_type)
+  # create M list of structure z
+  out_bsq$m[[i]] <- z
+  # create N list of structure z
+  out_bsq$n[[i]] <- z
+  # create org list of structure z
+  out_bsq$org[[i]] <- z
+  # sample the M data
+  for (j in 1:length(z)) {
+    if (j < length(bsq_N)) {
+      out_bsq$m[[i]][[j]] <- sample(bsq_M[[j]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_bsq$m[[i]][[j]], table = bsq_M[[j]])
+      # now take these index numbers and take their respective values for N
+      out_bsq$n[[i]][[j]] <- bsq_N[[j]][a]
+      # now give them the matching animal type
+      out_bsq$org[[i]][[j]] <- bsq_TL[[j]][a]
+    } else {
+      out_bsq$m[[i]][[j]] <- sample(bsq_M[[length(bsq_M)]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_bsq$m[[i]][[j]], table = bsq_M[[length(bsq_M)]])
+      # now take these index numbers and take their respective values for N
+      out_bsq$n[[i]][[j]] <- bsq_N[[length(bsq_M)]][a]
+      # now give them the matching animal type
+      out_bsq$org[[i]][[j]] <- bsq_TL[[length(bsq_M)]][a]
+    }
+  }
+}
+
+for (i in 1:length(csm_sim_TL)) {
+  # gets the list structure of the food web we want to sample into
+  x <- csm_sim_TL[[i]]
+  y <- group_split(x, TL_cut)
+  z <- map(y, pull, org_type)
+  # create M list of structure z
+  out_csm$m[[i]] <- z
+  # create N list of structure z
+  out_csm$n[[i]] <- z
+  # create org list of structure z
+  out_csm$org[[i]] <- z
+  # sample the M data
+  for (j in 1:length(z)) {
+    if (j < length(csm_N)) {
+      out_csm$m[[i]][[j]] <- sample(csm_M[[j]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_csm$m[[i]][[j]], table = csm_M[[j]])
+      # now take these index numbers and take their respective values for N
+      out_csm$n[[i]][[j]] <- csm_N[[j]][a]
+      # now give them the matching animal type
+      out_csm$org[[i]][[j]] <- csm_TL[[j]][a]
+    } else {
+      out_csm$m[[i]][[j]] <- sample(csm_M[[length(csm_M)]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_csm$m[[i]][[j]], table = csm_M[[length(csm_M)]])
+      # now take these index numbers and take their respective values for N
+      out_csm$n[[i]][[j]] <- csm_N[[length(csm_M)]][a]
+      # now give them the matching animal type
+      out_csm$org[[i]][[j]] <- csm_TL[[length(csm_M)]][a]
+    }
+  }
+}
+
+for (i in 1:length(epb_sim_TL)) {
+  # gets the list structure of the food web we want to sample into
   x <- epb_sim_TL[[i]]
   y <- group_split(x, TL_cut)
   z <- map(y, pull, org_type)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(epb_TL[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_epb$TL[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate M
-for(i in seq(epb_sim_TL)){
-  x <- epb_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, M)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(epb_M[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_epb$M[[i]] <- z
-}
-
-# loop -  replace with sampled animal types for appropriate N
-for(i in seq(epb_sim_TL)){
-  x <- epb_sim_TL[[i]]
-  y <- group_split(x, TL_cut)
-  z <- map(y, pull, N)
-  for(j in 1:length(z)){
-    z[[j]] <- sample(epb_N[[j]], replace = TRUE, length(z[[j]]))
-  }
-  out_epb$N[[i]] <- z
-}
-
-# Get Biomass -------------------------------------------------------------
-
-out_bsq$B <- out_bsq$M
-for(i in seq(out_bsq$B)){
-  for(j in seq(out_bsq$B[[i]])){
-    out_bsq$B[[i]][[j]] <- out_bsq$M[[i]][[j]] * out_bsq$N[[i]][[j]]
+  # create M list of structure z
+  out_epb$m[[i]] <- z
+  # create N list of structure z
+  out_epb$n[[i]] <- z
+  # create org list of structure z
+  out_epb$org[[i]] <- z
+  # sample the M data
+  for (j in 1:length(z)) {
+    if (j < length(epb_N)) {
+      out_epb$m[[i]][[j]] <- sample(epb_M[[j]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_epb$m[[i]][[j]], table = epb_M[[j]])
+      # now take these index numbers and take their respective values for N
+      out_epb$n[[i]][[j]] <- epb_N[[j]][a]
+      # now give them the matching animal type
+      out_epb$org[[i]][[j]] <- epb_TL[[j]][a]
+    } else {
+      out_epb$m[[i]][[j]] <- sample(epb_M[[length(epb_M)]], replace = TRUE, length(z[[j]]))
+      # now find the index numbers of those sampled
+      a <- match(x = out_epb$m[[i]][[j]], table = epb_M[[length(epb_M)]])
+      # now take these index numbers and take their respective values for N
+      out_epb$n[[i]][[j]] <- epb_N[[length(epb_M)]][a]
+      # now give them the matching animal type
+      out_epb$org[[i]][[j]] <- epb_TL[[length(epb_M)]][a]
+    }
   }
 }
 
-out_csm$B <- out_csm$M
-for(i in seq(out_csm$B)){
-  for(j in seq(out_csm$B[[i]])){
-    out_csm$B[[i]][[j]] <- out_csm$M[[i]][[j]] * out_csm$N[[i]][[j]]
+# Compact this ------------------------------------------------------------
+
+out_bsq$b <- out_bsq$m
+for(i in seq(out_bsq$b)){
+  for(j in seq(out_bsq$b[[i]])){
+    out_bsq$b[[i]][[j]] <- out_bsq$m[[i]][[j]] * out_bsq$n[[i]][[j]]
   }
 }
 
-out_epb$B <- out_epb$M
-for(i in seq(out_epb$B)){
-  for(j in seq(out_epb$B[[i]])){
-    out_epb$B[[i]][[j]] <- out_epb$M[[i]][[j]] * out_epb$N[[i]][[j]]
+out_csm$b <- out_csm$m
+for(i in seq(out_csm$b)){
+  for(j in seq(out_csm$b[[i]])){
+    out_csm$b[[i]][[j]] <- out_csm$m[[i]][[j]] * out_csm$n[[i]][[j]]
   }
 }
 
+out_epb$b <- out_epb$m
+for(i in seq(out_epb$b)){
+  for(j in seq(out_epb$b[[i]])){
+    out_epb$b[[i]][[j]] <- out_epb$m[[i]][[j]] * out_epb$n[[i]][[j]]
+  }
+}
 
-# Unlist Data -------------------------------------------------------------
+# # works but returns them unnamed so not useful with current workflow
+# get_biomass <- function(web){
+#   web$b <- web$m
+#   for(i in seq(web$b)){
+#     for(j in seq(web$b[[i]])){
+#       web$b[[i]][[j]] <- web$m[[i]][[j]] * web$n[[i]][[j]]
+#     }
+#   }
+#   web$b
+# }
+# 
+# foo <- lapply(list(out_bsq, out_csm, out_epb), get_biomass)
 
-out_bsq$TL <- lapply(out_bsq$TL, unlist)
-out_bsq$M <- lapply(out_bsq$M, unlist)
-out_bsq$N <- lapply(out_bsq$N, unlist)
-out_bsq$B <- lapply(out_bsq$B, unlist)
+# unlist ------------------------------------------------------------------
 
-out_csm$TL <- lapply(out_csm$TL, unlist)
-out_csm$M <- lapply(out_csm$M, unlist)
-out_csm$N <- lapply(out_csm$N, unlist)
-out_csm$B <- lapply(out_csm$B, unlist)
+out_bsq$org <- lapply(out_bsq$org, unlist)
+out_bsq$m <- lapply(out_bsq$m, unlist)
+out_bsq$n <- lapply(out_bsq$n, unlist)
+out_bsq$b <- lapply(out_bsq$b, unlist)
 
-out_epb$TL <- lapply(out_epb$TL, unlist)
-out_epb$M <- lapply(out_epb$M, unlist)
-out_epb$N <- lapply(out_epb$N, unlist)
-out_epb$B <- lapply(out_epb$B, unlist)
+out_csm$org <- lapply(out_csm$org, unlist)
+out_csm$m <- lapply(out_csm$m, unlist)
+out_csm$n <- lapply(out_csm$n, unlist)
+out_csm$b <- lapply(out_csm$b, unlist)
 
+out_epb$org <- lapply(out_epb$org, unlist)
+out_epb$m <- lapply(out_epb$m, unlist)
+out_epb$n <- lapply(out_epb$n, unlist)
+out_epb$b <- lapply(out_epb$b, unlist)
 
-# Run through fluxweb -----------------------------------------------------
-
-
-# Met Types ---------------------------------------------------------------
-
-met_types <-  c("ecto_vert", "endo_vert", "invert")
 
 # losses ------------------------------------------------------------------
+
 losses_bsq_sim <- 
-  lapply(out_bsq$M, function(x){
+  lapply(out_bsq$m, function(x){
     losses = rep(NA, length(x))
     ecto.vert = met_types == "ecto_vert"
     endo.vert = met_types == "endo_vert"
@@ -448,7 +444,7 @@ losses_bsq_sim <-
   })
 
 losses_csm_sim <- 
-  lapply(out_csm$M, function(x){
+  lapply(out_csm$m, function(x){
     losses = rep(NA, length(x))
     ecto.vert = met_types == "ecto_vert"
     endo.vert = met_types == "endo_vert"
@@ -460,7 +456,7 @@ losses_csm_sim <-
   })
 
 losses_epb_sim <- 
-  lapply(out_epb$M, function(x){
+  lapply(out_epb$m, function(x){
     losses = rep(NA, length(x))
     ecto.vert = met_types == "ecto_vert"
     endo.vert = met_types == "endo_vert"
@@ -471,48 +467,47 @@ losses_epb_sim <-
     losses
   })
 
-# Efficiencies ------------------------------------------------------------
+
+# efficiencies ------------------------------------------------------------
 
 efficiencies_bsq_sim <- 
-  lapply(seq(out_bsq$TL), function(x) {
-    efficiencies_bsq_sim = rep(NA, length(out_bsq$TL[[x]]))
-    efficiencies_bsq_sim[out_bsq$TL[[x]] == "animal"] = 0.906
-    efficiencies_bsq_sim[out_bsq$TL[[x]] == "para"] = 0.906
-    efficiencies_bsq_sim[out_bsq$TL[[x]] == "plant"] = 0.545
-    efficiencies_bsq_sim[out_bsq$TL[[x]] == "detritus"] = 0.906
+  lapply(seq(out_bsq$org), function(x) {
+    efficiencies_bsq_sim = rep(NA, length(out_bsq$org[[x]]))
+    efficiencies_bsq_sim[out_bsq$org[[x]] == "animal"] = 0.906
+    efficiencies_bsq_sim[out_bsq$org[[x]] == "para"] = 0.906
+    efficiencies_bsq_sim[out_bsq$org[[x]] == "plant"] = 0.545
+    efficiencies_bsq_sim[out_bsq$org[[x]] == "detritus"] = 0.906
     efficiencies_bsq_sim
   })
 
 efficiencies_csm_sim <- 
-  lapply(seq(out_csm$TL), function(x) {
-    efficiencies_csm_sim = rep(NA, length(out_csm$TL[[x]]))
-    efficiencies_csm_sim[out_csm$TL[[x]] == "animal"] = 0.906
-    efficiencies_csm_sim[out_csm$TL[[x]] == "para"] = 0.906
-    efficiencies_csm_sim[out_csm$TL[[x]] == "plant"] = 0.545
-    efficiencies_csm_sim[out_csm$TL[[x]] == "detritus"] = 0.906
+  lapply(seq(out_csm$org), function(x) {
+    efficiencies_csm_sim = rep(NA, length(out_csm$org[[x]]))
+    efficiencies_csm_sim[out_csm$org[[x]] == "animal"] = 0.906
+    efficiencies_csm_sim[out_csm$org[[x]] == "para"] = 0.906
+    efficiencies_csm_sim[out_csm$org[[x]] == "plant"] = 0.545
+    efficiencies_csm_sim[out_csm$org[[x]] == "detritus"] = 0.906
     efficiencies_csm_sim
   })
 
 efficiencies_epb_sim <- 
-  lapply(seq(out_epb$TL), function(x) {
-    efficiencies_epb_sim = rep(NA, length(out_epb$TL[[x]]))
-    efficiencies_epb_sim[out_epb$TL[[x]] == "animal"] = 0.906
-    efficiencies_epb_sim[out_epb$TL[[x]] == "para"] = 0.906
-    efficiencies_epb_sim[out_epb$TL[[x]] == "plant"] = 0.545
-    efficiencies_epb_sim[out_epb$TL[[x]] == "detritus"] = 0.906
+  lapply(seq(out_epb$org), function(x) {
+    efficiencies_epb_sim = rep(NA, length(out_epb$org[[x]]))
+    efficiencies_epb_sim[out_epb$org[[x]] == "animal"] = 0.906
+    efficiencies_epb_sim[out_epb$org[[x]] == "para"] = 0.906
+    efficiencies_epb_sim[out_epb$org[[x]] == "plant"] = 0.545
+    efficiencies_epb_sim[out_epb$org[[x]] == "detritus"] = 0.906
     efficiencies_epb_sim
   })
 
 
-# Fluxing -----------------------------------------------------------------
-
-library(fluxweb)
+# flux --------------------------------------------------------------------
 
 bsq_fluxes_sim <- 
-  lapply(1:length(niche_bsq), function(x){
+  lapply(seq(niche_bsq), function(x){
     fluxing(
       mat = niche_bsq[[x]],
-      biomasses = out_bsq$B[[x]],
+      biomasses = out_bsq$b[[x]],
       losses = losses_bsq_sim[[x]],
       efficiencies = efficiencies_bsq_sim[[x]]
     )
@@ -522,7 +517,7 @@ csm_fluxes_sim <-
   lapply(seq(niche_csm), function(x){
     fluxing(
       mat = niche_csm[[x]],
-      biomasses = out_csm$B[[x]],
+      biomasses = out_csm$b[[x]],
       losses = losses_csm_sim[[x]],
       efficiencies = efficiencies_csm_sim[[x]]
     )
@@ -532,7 +527,7 @@ epb_fluxes_sim <-
   lapply(seq(niche_epb), function(x){
     fluxing(
       mat = niche_epb[[x]],
-      biomasses = out_epb$B[[x]],
+      biomasses = out_epb$b[[x]],
       losses = losses_epb_sim[[x]],
       efficiencies = efficiencies_epb_sim[[x]]
     )
