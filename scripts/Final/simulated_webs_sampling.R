@@ -14,7 +14,9 @@ library(parallel)
 # random_bsq <- Random.model(S = gorder(bsq.ig) + 1, L = gsize(bsq.ig), N = 10) # +1 for roots node which gets removed because its isolated
 niche_bsq <- Niche.model(S = gorder(bsq.ig) + 1, L = gsize(bsq.ig), N = 50) # ^ as above
 
-mclapply(niche_bsq, Plot.matrix)
+Plot.matrix(niche_bsq[[1]])
+
+mclapply(niche_bsq[[1]], Plot.matrix)
 
 # models for CSM
 # random_csm <- Random.model(S = gorder(csm.ig), L = gsize(csm.ig), N = 10)
@@ -27,9 +29,9 @@ niche_epb <- Niche.model(S = gorder(epb.ig), L = gsize(epb.ig), N = 50)
 
 # Get TL of Simulated Webs ------------------------------------------------
 
-niche_bsq_TL <- mclapply(niche_bsq, NetIndices::TrophInd, mc.cores = 12)
-niche_csm_TL <- mclapply(niche_csm, NetIndices::TrophInd, mc.cores = 12)
-niche_epb_TL <- mclapply(niche_epb, NetIndices::TrophInd, mc.cores = 12)
+niche_bsq_TL <- mclapply(niche_bsq, NetIndices::TrophInd, mc.cores = 4)
+niche_csm_TL <- mclapply(niche_csm, NetIndices::TrophInd, mc.cores = 4)
+niche_epb_TL <- mclapply(niche_epb, NetIndices::TrophInd, mc.cores = 4)
 
 # Empirical TL Distribution -----------------------------------------------
 
@@ -504,16 +506,44 @@ efficiencies_epb_sim <-
 
 
 # flux --------------------------------------------------------------------
+sl <- list(
+  mat = niche_bsq[[42]],
+  biomasses = out_bsq$b[[42]],
+  losses = losses_bsq_sim[[42]],
+  efficiencies = efficiencies_bsq_sim[[42]]
+)
+
+vec.in = as.vector(t(sl$mat) %*% sl$efficiencies)
+vec.1p = rep(0, dim(sl$mat)[1])
+vec.1p[colSums(sl$mat) == 0] = 1
+F = solve(diag(vec.in + vec.1p) - sl$mat) %*% sl$losses
+
+any(F < 0)
+
+#losses <- 0.1*out_bsq$m[[1]]^(-0.25)
+
+fluxing(
+  sl$mat, 
+  sl$biomasses,
+  sl$losses,
+  sl$efficiencies,
+  bioms.prefs = TRUE,
+  ef.level = "prey"
+)
+
 
 bsq_fluxes_sim <- 
   lapply(seq(niche_bsq), function(x){
-    fluxing(
+    try(fluxing(
       mat = niche_bsq[[x]],
       biomasses = out_bsq$b[[x]],
       losses = losses_bsq_sim[[x]],
       efficiencies = efficiencies_bsq_sim[[x]]
-    )
+    ))
   })
+
+winners <- Filter(is.numeric, bsq_fluxes_sim)
+length(winners) # only 11 are without a negative flux value
 
 csm_fluxes_sim <- 
   lapply(seq(niche_csm), function(x){
